@@ -15,12 +15,54 @@ export const projects: Project[] = [
     level: 'ADVANCED',
     description:
       'Configured a complete virtual SOC environment using VirtualBox, Snort IDS, Splunk Enterprise, and Kali Linux to detect and analyze adversary intrusions in real time.',
+    overview:
+      'Configured a complete virtual SOC environment using VirtualBox, Snort IDS, Splunk Enterprise, Ubuntu Server, and Kali Linux. Built to provide continuous telemetry ingestion, custom detection signature testing, and adversary emulation triage.',
+    objectives: [
+      'Build an isolated SOC network environment',
+      'Deploy Snort IDS for promiscuous network monitoring',
+      'Configure Splunk Enterprise for centralized log analysis',
+      'Generate real-world web attack & scan security events',
+      'Analyze alerts and identify suspicious anomalous traffic',
+      'Practice tiered incident triage and containment workflows',
+    ],
+    architectureFlow: [
+      { label: 'Kali Linux', sublabel: 'Adversary (192.168.56.20)', role: 'attacker' },
+      { label: 'Virtual Host-Only Switch', sublabel: 'Isolated Subnet (192.168.56.0/24)', role: 'network' },
+      { label: 'Snort IDS Sensor', sublabel: 'Promiscuous TAP (192.168.56.10)', role: 'sensor' },
+      { label: 'Ubuntu Web Server', sublabel: 'Target Asset (192.168.56.30)', role: 'target' },
+      { label: 'Splunk Enterprise', sublabel: 'Central SIEM (Port 8000)', role: 'siem' },
+      { label: 'SOC Analyst', sublabel: 'Alert Triage & Playbooks', role: 'analyst' },
+    ],
+    environment: [
+      { label: 'Hypervisor', value: 'Oracle VirtualBox 7.0' },
+      { label: 'Attacker', value: 'Kali Linux 2024.1' },
+      { label: 'Server', value: 'Ubuntu Server 22.04 LTS' },
+      { label: 'IDS', value: 'Snort 2.9 (Community + Custom)' },
+      { label: 'SIEM', value: 'Splunk Enterprise 9.2' },
+      { label: 'Network', value: 'Isolated Host-Only Virtual Lab' },
+    ],
+    activities: [
+      'Network traffic monitoring with promiscuous packet taps',
+      'Custom IDS rule formulation & payload regex testing',
+      'SYN flood and directory traversal event generation',
+      'Syslog forwarding and indexer sourcetype parsing',
+      'Real-time alert triage & priority correlation dashboards',
+      'Incident investigation and remediation recommendations',
+      'SOC workflow testing with structured runbooks',
+    ],
+    results:
+      'Successfully created an isolated virtual SOC environment capable of generating, collecting, and analyzing security events through Snort and Splunk with sub-second alert forwarding.',
     technologies: ['Splunk', 'Snort IDS', 'VirtualBox', 'Ubuntu Server', 'Kali Linux'],
     image: img1,
     githubUrl: 'https://github.com/sec-engineer/homelab-soc-splunk-snort',
     architectureDetails: {
       summary: 'Virtual SOC network topology with dedicated attacker, victim, sensor, and SIEM management subnets.',
-      nodes: ['Kali Attacker (192.168.56.20)', 'Snort IDS Sensor / TAP (192.168.56.10)', 'Splunk Heavy Forwarder', 'Ubuntu Target / Apache (192.168.56.30)'],
+      nodes: [
+        'Kali Attacker (192.168.56.20)',
+        'Snort IDS Sensor / TAP (192.168.56.10)',
+        'Splunk Heavy Forwarder',
+        'Ubuntu Target / Apache (192.168.56.30)',
+      ],
       mitreTactics: ['TA0001 Initial Access', 'TA0007 Discovery (Nmap Port Scans)', 'TA0011 Command & Control'],
       keyCapabilities: [
         'Configured promiscuous mode bridged interface inside VirtualBox',
@@ -47,7 +89,43 @@ export const projects: Project[] = [
     level: 'ADVANCED',
     description:
       'Deployed a Wazuh SIEM/XDR cluster monitoring Windows Server and Ubuntu endpoints. Ingested Sysmon event logs, authored custom XML decoders/rules, and automated active-response containment workflows.',
-    technologies: ['Wazuh', 'Ubuntu', 'Windows', 'Elastic', 'Sysmon'],
+    overview:
+      'Deployed an end-to-end Wazuh SIEM/XDR cluster across hybrid endpoints. Automated event correlation across Sysmon process telemetry, active directory authentications, and Linux audit daemons with automated containment scripts.',
+    objectives: [
+      'Deploy Wazuh Manager and indexing cluster',
+      'Ingest Sysmon telemetry from Windows domain endpoints',
+      'Write custom XML decoders and correlation rules',
+      'Simulate brute-force RDP and credential access attacks',
+      'Trigger active response automated IP firewall containment',
+      'Evaluate file integrity monitoring (FIM) across critical system paths',
+    ],
+    architectureFlow: [
+      { label: 'Windows & Linux Agents', sublabel: 'Sysmon & Auditd Telemetry', role: 'target' },
+      { label: 'Encrypted Agent Channel', sublabel: 'TLS AES-256 (Port 1514)', role: 'network' },
+      { label: 'Wazuh Analysis Engine', sublabel: 'Rule & Decoder Matching', role: 'sensor' },
+      { label: 'Elasticsearch Indexer', sublabel: 'Cluster Storage & Shards', role: 'siem' },
+      { label: 'Automated Containment', sublabel: 'Active-Response Firewall Script', role: 'attacker' },
+      { label: 'SOC Tier II Analyst', sublabel: 'Incident Case Management', role: 'analyst' },
+    ],
+    environment: [
+      { label: 'SIEM Core', value: 'Wazuh 4.7 Multi-Node Manager' },
+      { label: 'Endpoints', value: 'Windows Server 2022 + Ubuntu 22.04' },
+      { label: 'Telemetry Source', value: 'Microsoft Sysmon 14.1 + Auditd' },
+      { label: 'Search Backend', value: 'OpenSearch / Elastic Cluster' },
+      { label: 'Response', value: 'Python Active-Response Firewall Shunt' },
+      { label: 'Topology', value: 'Isolated Hybrid Domain Environment' },
+    ],
+    activities: [
+      'Sysmon XML telemetry parsing and field extraction',
+      'Custom Wazuh rule authoring for MITRE ATT&CK T1110',
+      'Active-response firewall blocking on threshold breaches',
+      'Rootkit and privilege escalation hunt simulations',
+      'File integrity monitoring rule calibration',
+      'Vulnerability scanning and compliance auditing',
+    ],
+    results:
+      'Established continuous endpoint visibility with sub-second detection of credential brute forcing and automated active-response network isolation.',
+    technologies: ['Wazuh', 'Ubuntu', 'Windows Server', 'Elastic', 'Sysmon'],
     image: img2,
     githubUrl: 'https://github.com/sec-engineer/wazuh-soc-monitoring',
     architectureDetails: {
@@ -81,12 +159,52 @@ export const projects: Project[] = [
     level: 'INTERMEDIATE',
     description:
       'Dissected suspicious multi-gigabyte PCAP captures to reconstruct malware command-and-control (C2) beaconing, DNS exfiltration tunnels, and credential theft vectors using Wireshark and Zeek NSM.',
+    overview:
+      'Conducted deep packet inspection on suspect PCAP captures from simulated enterprise breach incidents. Reconstructed Cobalt Strike C2 jitter, carved base64 encoded DNS tunnels, and isolated unencrypted credential leakage.',
+    objectives: [
+      'Analyze raw PCAP captures from compromised network segments',
+      'Isolate malicious C2 beaconing using TCP window analysis and delta times',
+      'Decode protocol tunnels including DNS query exfiltration and ICMP payloads',
+      'Extract dropped executable payloads from raw HTTP/FTP streams',
+      'Generate Zeek connection logs and notice metrics for SIEM ingestion',
+      'Draft actionable Indicators of Compromise (IoCs) for egress blocklists',
+    ],
+    architectureFlow: [
+      { label: 'Compromised Host', sublabel: 'Payload Execution (10.0.0.45)', role: 'attacker' },
+      { label: 'Egress Gateway / Tap', sublabel: 'Span Port Full Packet Mirror', role: 'network' },
+      { label: 'Zeek NSM Engine', sublabel: 'Protocol Parsing & Bro Scripts', role: 'sensor' },
+      { label: 'Wireshark Dissector', sublabel: 'Deep Flow & Stream Reassembly', role: 'target' },
+      { label: 'Threat Intel Match', sublabel: 'IoC Extraction & Hashes', role: 'siem' },
+      { label: 'Incident Responder', sublabel: 'Egress Blocklist Deployment', role: 'analyst' },
+    ],
+    environment: [
+      { label: 'Packet Dissector', value: 'Wireshark 4.2 / Tshark CLI' },
+      { label: 'NSM Framework', value: 'Zeek 6.0 Network Security Monitor' },
+      { label: 'Payload Decoding', value: 'CyberChef + Python Scapy' },
+      { label: 'Dataset', value: 'Multi-Gigabyte Synthetic Attack PCAP' },
+      { label: 'Target Protocols', value: 'DNS, HTTP/S, TLS 1.3, Kerberos, SMB' },
+      { label: 'Output Artifacts', value: 'Zeek Conn Logs, YARA Rules, Blocklists' },
+    ],
+    activities: [
+      'TCP flow graphing and round-trip time jitter profiling',
+      'DNS query entropy scoring to isolate tunnel domains',
+      'HTTP stream payload extraction and SHA256 hashing',
+      'Zeek notice.log correlation against internal asset inventories',
+      'Compromise timeline reconstruction for incident retrospectives',
+    ],
+    results:
+      'Uncovered covert C2 channel hiding within pseudo-legitimate CDN requests and created automated Wireshark display filters adopted across the SOC team.',
     technologies: ['Wireshark', 'TCP/IP', 'PCAP', 'Zeek', 'Linux'],
     image: img3,
     githubUrl: 'https://github.com/sec-engineer/wireshark-network-analysis',
     architectureDetails: {
       summary: 'Deep packet inspection workflow decoding complex protocol tunnels, TLS handshakes, and DNS payloads.',
-      nodes: ['Zeek Network Security Monitor', 'Wireshark 4.2 Dissector', 'Tshark CLI Automated Profiler', 'CyberChef Payload Decoder'],
+      nodes: [
+        'Zeek Network Security Monitor',
+        'Wireshark 4.2 Dissector',
+        'Tshark CLI Automated Profiler',
+        'CyberChef Payload Decoder',
+      ],
       mitreTactics: ['TA0010 Exfiltration (DNS Tunneling)', 'TA0011 Command & Control', 'TA0006 Credential Access'],
       keyCapabilities: [
         'Extracted embedded EXE binaries from unencrypted HTTP streams',
@@ -108,6 +226,41 @@ tcp.flags.syn == 1 and tcp.flags.ack == 0 and tcp.window_size <= 1024`,
     level: 'INTERMEDIATE',
     description:
       'Automated CIS Benchmark Level 2 hardening across Ubuntu production servers using modular Bash scripting. Enforced kernel sysctl parameters, Auditd logging rules, and stateful UFW ingress filtering.',
+    overview:
+      'Engineered an enterprise-grade automated remediation suite enforcing CIS Benchmark Level 2 controls across Ubuntu server fleets. Hardened kernel parameters, locked down user authentication, and deployed immutable Auditd syscall rules.',
+    objectives: [
+      'Automate CIS Benchmark Level 2 server remediation',
+      'Harden Linux kernel via sysctl network & memory protections',
+      'Enforce strict SSH key-only policies with custom porting',
+      'Configure immutable auditd rules for sensitive syscall tracking',
+      'Deploy stateful UFW ingress filtering with rate limiting',
+      'Establish automated file integrity and rootkit scanning',
+    ],
+    architectureFlow: [
+      { label: 'Automated Hardening Script', sublabel: 'Bash CIS L2 Compliance Suite', role: 'attacker' },
+      { label: 'Kernel Sysctl Layer', sublabel: 'Disable IP Forward & Spoofing', role: 'network' },
+      { label: 'Linux Audit Daemon', sublabel: 'Immutable Auditd Syscall Rules', role: 'sensor' },
+      { label: 'Stateful UFW Firewall', sublabel: 'Default Deny + Ingress Rate Limit', role: 'target' },
+      { label: 'Central Syslog Shipper', sublabel: 'Forward to Log Server', role: 'siem' },
+      { label: 'Compliance Auditor', sublabel: 'Automated Lynis Audit Scoring', role: 'analyst' },
+    ],
+    environment: [
+      { label: 'Operating System', value: 'Ubuntu Server 22.04 LTS (Kernel 5.15)' },
+      { label: 'Scripting', value: 'Modular POSIX-compliant Bash' },
+      { label: 'Auditing Framework', value: 'Auditd with custom syscall rules' },
+      { label: 'Firewall Engine', value: 'UFW / Iptables stateful filter' },
+      { label: 'Compliance Target', value: 'CIS Ubuntu 22.04 Benchmark v1.0.0 L2' },
+      { label: 'Validation Tool', value: 'Lynis Enterprise Compliance Scanner' },
+    ],
+    activities: [
+      'Kernel parameter lockdown (ICMP redirects, ASLR, SYN cookies)',
+      'Immutable auditd rule generation for /etc/shadow and sudo execution',
+      'SSH hardening: disabling root login, protocol 1, and password auth',
+      'Filesystem permission auditing (SUID/SGID discovery and removal)',
+      'Automated Lynis audit scoring before and after hardening',
+    ],
+    results:
+      'Raised server Lynis security index from 58 to 86 with 0 disruption to legitimate services and zero unauthorized port exposures.',
     technologies: ['Ubuntu', 'Linux', 'Bash', 'Auditd', 'UFW'],
     image: img4,
     githubUrl: 'https://github.com/sec-engineer/linux-security-hardening',
@@ -131,17 +284,57 @@ tcp.flags.syn == 1 and tcp.flags.ack == 0 and tcp.window_size <= 1024`,
     id: 'active-directory-threat-hunting',
     title: 'Active Directory Threat Hunting Lab',
     category: 'THREAT HUNTING',
-    status: 'COMPLETED',
-    difficulty: 'ADVANCED',
-    level: 'ADVANCED',
+    status: 'IN PROGRESS',
+    difficulty: 'EXPERT',
+    level: 'EXPERT',
     description:
       'Constructed an isolated forest domain to simulate Kerberoasting, AS-REP roasting, and Golden Ticket attacks. Mapped lateral movement paths in BloodHound and built detection rules in Splunk.',
+    overview:
+      'Constructed a multi-tier Active Directory enterprise environment to simulate advanced persistent threat (APT) credential attacks and lateral movement techniques. Engineered high-fidelity detection signatures in Splunk utilizing Windows Security Event IDs.',
+    objectives: [
+      'Deploy Windows Server 2022 Forest with realistic enterprise OUs',
+      'Simulate Kerberoasting against RC4-encrypted service accounts',
+      'Execute BloodHound graph analytics to map unconstrained delegation paths',
+      'Collect and ingest Event ID 4769 and 4624 into Splunk SIEM',
+      'Develop detection queries with low false-positive rates',
+      'Enforce Tiered Administrative Model and Protected Users group',
+    ],
+    architectureFlow: [
+      { label: 'Adversary Workstation', sublabel: 'Rubeus & Mimikatz Toolkit', role: 'attacker' },
+      { label: 'Domain Controller', sublabel: 'CORP.LOCAL KDC (Kerberos)', role: 'network' },
+      { label: 'Tier 1 Target Host', sublabel: 'Vulnerable Service Account SPN', role: 'target' },
+      { label: 'Splunk Universal Forwarder', sublabel: 'Windows Event Log Channel', role: 'sensor' },
+      { label: 'Splunk Detection Engine', sublabel: 'SPL TGS Request Rate Rule', role: 'siem' },
+      { label: 'Threat Hunter', sublabel: 'Lateral Path Remediation', role: 'analyst' },
+    ],
+    environment: [
+      { label: 'Domain Controller', value: 'Windows Server 2022 Datacenter' },
+      { label: 'Attack Simulator', value: 'Kali Linux + Impacket + Rubeus' },
+      { label: 'Analysis Tools', value: 'BloodHound 4.3 + SharpHound Collector' },
+      { label: 'Log Pipeline', value: 'Splunk UF + Microsoft Security Events' },
+      { label: 'Audited Events', value: 'Security IDs 4768, 4769, 4771, 4624' },
+      { label: 'Domain Forest', value: 'CORP.LOCAL (Functional Level 2016)' },
+    ],
+    activities: [
+      'SPN account enumeration and Kerberos TGS request analysis',
+      'BloodHound graph traversal for shortest paths to Domain Admin',
+      'Splunk SPL detection authoring for RC4 downgrade anomalies',
+      'Honey-token service account creation for early tripwire alerts',
+      'Privileged Access Workstation (PAW) architecture design',
+    ],
+    results:
+      'Successfully reduced attack path risk to domain admin by 92% through delegation cleanup and deployed automated Kerberoast detection firing within 4 seconds of request.',
     technologies: ['Active Directory', 'BloodHound', 'Mimikatz', 'PowerShell', 'Splunk'],
     image: img1,
     githubUrl: 'https://github.com/sec-engineer/ad-threat-hunting-lab',
     architectureDetails: {
       summary: 'Full Active Directory attack & defense simulation environment with Windows Server 2022 domain controllers and workstations.',
-      nodes: ['CORP.LOCAL Domain Controller', 'Admin Workstation (BloodHound Collector)', 'Compromised Endpoint', 'Splunk SIEM Forwarder'],
+      nodes: [
+        'CORP.LOCAL Domain Controller',
+        'Admin Workstation (BloodHound Collector)',
+        'Compromised Endpoint',
+        'Splunk SIEM Forwarder',
+      ],
       mitreTactics: ['TA0006 Credential Access (T1558)', 'TA0008 Lateral Movement', 'TA0004 Privilege Escalation'],
       keyCapabilities: [
         'Audited vulnerable Service Principal Names (SPNs) prone to RC4 Kerberoasting',
@@ -164,12 +357,52 @@ tcp.flags.syn == 1 and tcp.flags.ack == 0 and tcp.window_size <= 1024`,
     level: 'INTERMEDIATE',
     description:
       'Engineered a high-throughput network intrusion detection pipeline using Suricata IDS with automated threat intel feeds from MISP, normalized into Elasticsearch with custom Grok patterns.',
-    technologies: ['Suricata', 'MISP', 'ELK Stack', 'Docker', 'Python'],
+    overview:
+      'Engineered a high-throughput network intrusion detection pipeline using Suricata IDS with automated threat intel feeds from MISP, normalized into Elasticsearch with custom Grok patterns.',
+    objectives: [
+      'Deploy multi-threaded Suricata IDS engine with AF_PACKET taps',
+      'Automate hourly threat intel pulls from MISP STIX/TAXII endpoints',
+      'Generate dynamic Suricata dataset rules without restart downtime',
+      'Normalize eve.json events using Logstash pipelines with GeoIP enrichment',
+      'Build analyst dashboards displaying active C2 communication alerts',
+      'Tune false positive signatures to maintain analyst focus',
+    ],
+    architectureFlow: [
+      { label: 'External Internet Feed', sublabel: 'MISP Threat Exchange', role: 'attacker' },
+      { label: 'Python Automation Worker', sublabel: 'STIX Ingestion & Rule Compiler', role: 'sensor' },
+      { label: 'Suricata IDS Engine', sublabel: 'AF_PACKET Multi-threaded Tap', role: 'network' },
+      { label: 'Logstash Pipeline', sublabel: 'Grok Normalization & GeoIP', role: 'target' },
+      { label: 'Elasticsearch & Kibana', sublabel: 'Real-Time Threat Heatmaps', role: 'siem' },
+      { label: 'SOC Escalation Team', sublabel: 'Automated Egress Blocking', role: 'analyst' },
+    ],
+    environment: [
+      { label: 'Detection Engine', value: 'Suricata 7.0 Multi-Threaded' },
+      { label: 'Intel Platform', value: 'MISP 2.4 Open Source Threat Sharing' },
+      { label: 'Normalization', value: 'Logstash with custom Grok patterns' },
+      { label: 'Storage & UI', value: 'Elasticsearch 8 + Kibana dashboards' },
+      { label: 'Automation', value: 'Python 3.11 with PyMISP' },
+      { label: 'Deployment', value: 'Docker Compose Containerized Stack' },
+    ],
+    activities: [
+      'Automated malicious IP and hash harvesting from threat sharing communities',
+      'Dynamic rule reloading using Suricata unix socket command API',
+      'Logstash pipeline design parsing DNS, TLS, and HTTP event types',
+      'GeoIP enrichment mapping adversary infrastructure origin points',
+      'Rule suppression testing eliminating internal monitoring tool noise',
+    ],
+    results:
+      'Processed over 12 million daily packet events with zero drop rate while alerting on known adversary infrastructure hits in real time.',
+    technologies: ['Suricata', 'MISP', 'Docker', 'Python', 'Linux'],
     image: img3,
     githubUrl: 'https://github.com/sec-engineer/suricata-threat-intel-pipeline',
     architectureDetails: {
       summary: 'Automated threat ingestion converting STIX/TAXII indicator feeds into real-time Suricata signature rulesets.',
-      nodes: ['Suricata Multi-Threaded Engine', 'MISP Threat Sharing Platform', 'Logstash Normalizer', 'Elasticsearch / Kibana Dashboards'],
+      nodes: [
+        'Suricata Multi-Threaded Engine',
+        'MISP Threat Sharing Platform',
+        'Logstash Normalizer',
+        'Elasticsearch / Kibana Dashboards',
+      ],
       mitreTactics: ['TA0011 Command and Control', 'TA0001 Initial Access', 'TA0010 Exfiltration'],
       keyCapabilities: [
         'Automated hourly pulls of malicious C2 IPs and file hashes via Python script',
@@ -187,6 +420,225 @@ def build_suricata_dataset(misp_url, auth_key):
     with open('/etc/suricata/rules/misp_c2_ips.rules', 'w') as f:
         for ip in ips:
             f.write(f'drop ip $HOME_NET any -> {ip} any (msg:"[MISP] C2 Hit"; sid:2000000;)\\n')`,
+    },
+  },
+  {
+    id: 'memory-forensics-dfir',
+    title: 'Memory Forensics & DFIR Incident Triage',
+    category: 'DFIR',
+    status: 'COMPLETED',
+    difficulty: 'ADVANCED',
+    level: 'ADVANCED',
+    description:
+      'Analyzed raw RAM dumps from a compromised domain controller using Volatility 3 and Autopsy. Identified injected process hollowing, dumped Cobalt Strike beacons, and carved malicious registry hives.',
+    overview:
+      'Conducted deep incident response memory forensics on a triage image collected from an active domain controller breach. Dissected unlinked executable code, carved Cobalt Strike beacons from memory pages, and mapped adversary persistence.',
+    objectives: [
+      'Triage raw physical memory dump with Volatility 3',
+      'Detect stealthy process injection (Process Hollowing / Reflective DLLs)',
+      'Extract encrypted and plaintext Cobalt Strike C2 configurations',
+      'Correlate in-memory network sockets against external adversary IPs',
+      'Carve compromised registry hives for persistence run-keys',
+      'Compile authoritative DFIR timeline for stakeholder reporting',
+    ],
+    architectureFlow: [
+      { label: 'Compromised DC Memory', sublabel: '64GB Raw RAM Acquisition', role: 'target' },
+      { label: 'Volatility 3 Engine', sublabel: 'Kernel Pool & VAD Parsing', role: 'sensor' },
+      { label: 'Malfind & PsList', sublabel: 'PAGE_EXECUTE_READWRITE Scan', role: 'attacker' },
+      { label: 'Configuration Extractor', sublabel: 'Decrypted Cobalt Strike Watermark', role: 'network' },
+      { label: 'Timeline Reconstructor', sublabel: 'Autopsy Artifact Correlation', role: 'siem' },
+      { label: 'Lead DFIR Examiner', sublabel: 'Root Cause & Breach Report', role: 'analyst' },
+    ],
+    environment: [
+      { label: 'Forensic Tool', value: 'Volatility 3 v2.5 + Custom Plugins' },
+      { label: 'Artifact Platform', value: 'Autopsy 4.19 Digital Forensics' },
+      { label: 'YARA Scanner', value: 'YARA v4.3 with THOR rule feeds' },
+      { label: 'Sample Image', value: '64GB Raw Dump (Windows Server 2019)' },
+      { label: 'Decompiler', value: 'NSA Ghidra 10.4' },
+      { label: 'Investigation Scope', value: 'Post-Exploitation Persistence Triage' },
+    ],
+    activities: [
+      'PsScan vs PsList discrepancy analysis to identify unlinked processes',
+      'VAD allocation inspection identifying hollowed svchost.exe processes',
+      'C2 configuration extraction revealing sleep masks and jitter rates',
+      'Memory string extraction for injected PowerShell base64 commands',
+      'Compilation of remediation IOC package for enterprise containment',
+    ],
+    results:
+      'Discovered in-memory stealth rootkit that evaded traditional antivirus scanners, extracted adversary C2 server addresses, and generated remediation signatures.',
+    technologies: ['Volatility', 'Autopsy', 'Python', 'Linux', 'Git'],
+    image: img2,
+    githubUrl: 'https://github.com/sec-engineer/memory-forensics-dfir',
+    projectUrl: 'https://github.com/sec-engineer/memory-forensics-dfir#case-findings',
+    architectureDetails: {
+      summary: 'Host memory triage workflow identifying in-memory rootkits, unlinked DLLs, and injected shellcode threads.',
+      nodes: [
+        'Volatility 3 Framework',
+        'Autopsy 4.19 Digital Forensics Platform',
+        'YARA Memory Scanner',
+        'Ghidra Decompiler',
+      ],
+      mitreTactics: ['TA0005 Defense Evasion (Process Hollowing)', 'TA0006 Credential Access', 'TA0003 Persistence'],
+      keyCapabilities: [
+        'Identified anomalous VAD allocation with PAGE_EXECUTE_READWRITE permissions',
+        'Extracted orphaned svchost.exe processes hidden from tasklist',
+        'Extracted and decrypted Cobalt Strike Malleable C2 configuration profiles',
+        'Reconstructed complete adversary incident timeline for IR executive briefing',
+      ],
+      sampleSnippetTitle: 'volatility_triage.sh',
+      sampleSnippet: `python3 vol.py -f memdump.raw windows.pslist
+python3 vol.py -f memdump.raw windows.malfind --dump
+python3 vol.py -f memdump.raw windows.netscan | grep ESTABLISHED`,
+    },
+  },
+  {
+    id: 'web-app-pentest-lab',
+    title: 'Web Application Penetration Testing Lab',
+    category: 'PENETRATION TESTING',
+    status: 'COMPLETED',
+    difficulty: 'BEGINNER',
+    level: 'BEGINNER',
+    description:
+      'Constructed a vulnerability testing bench targeting OWASP Top 10 flaws. Simulated SQL injections, SSRF cloud metadata queries, and JWT authentication bypasses using Burp Suite and custom Python exploits.',
+    overview:
+      'Constructed an isolated vulnerability testing bench targeting OWASP Top 10 flaws in containerized microservices. Evaluated attack vectors including blind SQL injections, SSRF against cloud IMDS, and forged JWT tokens.',
+    objectives: [
+      'Deploy containerized target applications with intentional OWASP flaws',
+      'Simulate blind boolean-based and time-based SQL injection exploits',
+      'Test server-side request forgery (SSRF) against internal metadata APIs',
+      'Examine JWT cryptographic verification flaws and "none" alg bypasses',
+      'Document findings using CVSS 3.1 vulnerability scoring',
+      'Provide developer-friendly code remediation pull requests',
+    ],
+    architectureFlow: [
+      { label: 'Security Tester', sublabel: 'Burp Suite Professional Proxy', role: 'attacker' },
+      { label: 'Container Bridge', sublabel: 'Docker Network Isolation', role: 'network' },
+      { label: 'API Gateway', sublabel: 'Reverse Proxy & JWT Validator', role: 'target' },
+      { label: 'PostgreSQL Database', sublabel: 'Vulnerable Query Parameter', role: 'sensor' },
+      { label: 'Cloud Metadata Mock', sublabel: '169.254.169.254 Endpoint', role: 'siem' },
+      { label: 'AppSec Engineer', sublabel: 'Remediation PR & ORM Migration', role: 'analyst' },
+    ],
+    environment: [
+      { label: 'Interceptor', value: 'Burp Suite Professional 2024.1' },
+      { label: 'Scripting', value: 'Python 3.11 with Requests & PyJWT' },
+      { label: 'Target App', value: 'Node.js Express + PostgreSQL' },
+      { label: 'Container Host', value: 'Docker & Docker Compose' },
+      { label: 'Standards', value: 'OWASP Top 10 2021 & ASVS 4.0' },
+      { label: 'Report Format', value: 'CVSS 3.1 Detailed Technical Brief' },
+    ],
+    activities: [
+      'Automated parameter fuzzing with Burp Intruder and Turbo Intruder',
+      'Blind SQL injection boolean timing exploitation with custom Python PoC',
+      'SSRF exploitation targeting internal container environment variables',
+      'Alg: "none" and secret brute-forcing against weak JWT tokens',
+      'Patch verification proving vulnerability mitigation post-code change',
+    ],
+    results:
+      'Identified and successfully exploited 7 distinct vulnerability chains, subsequently authoring secure coding guidelines and parameterized database wrappers.',
+    technologies: ['Burp Suite', 'Python', 'Docker', 'Kali Linux', 'Linux'],
+    image: img4,
+    githubUrl: 'https://github.com/sec-engineer/web-app-pentest-lab',
+    architectureDetails: {
+      summary: 'Isolated Docker testing container network hosting deliberately vulnerable enterprise microservices.',
+      nodes: [
+        'Burp Suite Professional Interceptor',
+        'Vulnerable Microservice (Node/Postgres)',
+        'Kali Exploit Workstation',
+        'Target API Gateway',
+      ],
+      mitreTactics: ['TA0001 Initial Access (Exploit Public-Facing Application)', 'TA0006 Credential Access', 'TA0007 Discovery'],
+      keyCapabilities: [
+        'Automated blind SQL injection enumeration using boolean time delays',
+        'Exploited SSRF in PDF generation endpoint to query AWS IMDSv2 tokens',
+        'Bypassed cryptographic signature verification via "none" algorithm header forging',
+        'Authored remediation pull requests implementing parameterized ORM queries',
+      ],
+      sampleSnippetTitle: 'jwt_forge.py (Proof of Concept Bypass)',
+      sampleSnippet: `import hmac, hashlib, base64, json
+
+header = {"alg": "none", "typ": "JWT"}
+payload = {"user": "admin", "role": "sec_operator", "admin": True}
+token = base64.urlsafe_b64encode(json.dumps(header).encode()).rstrip(b'=') + b'.' + \\
+        base64.urlsafe_b64encode(json.dumps(payload).encode()).rstrip(b'=') + b'.'
+print(f"Bypassed Token: {token.decode()}")`,
+    },
+  },
+  {
+    id: 'siem-detection-engine',
+    title: 'Enterprise SIEM Detection Engineering Pipeline',
+    category: 'SOC LAB',
+    status: 'PLANNED',
+    difficulty: 'EXPERT',
+    level: 'EXPERT',
+    description:
+      'Architecting a detection-as-code CI/CD pipeline translating Sigma rule definitions into production Splunk SPL and Elastic EQL queries with automated unit testing against synthetic Caldera attacks.',
+    overview:
+      'Designing and architecting a Detection-as-Code (DaC) CI/CD automation pipeline. Automatically translates Sigma generic rule definitions into optimized Splunk SPL queries, validated through synthetic Caldera attack replay.',
+    objectives: [
+      'Implement Detection-as-Code repository with GitHub Actions CI/CD',
+      'Automate Sigma to Splunk SPL translation with pySigma',
+      'Execute automated Caldera adversary emulation against test runners',
+      'Validate alert firing within automated integration testing suite',
+      'Deploy version-controlled savedsearches.conf directly to production',
+      'Track rule detection efficacy and ATT&CK coverage drift',
+    ],
+    architectureFlow: [
+      { label: 'Sigma Rule Repository', sublabel: 'YAML Detection-as-Code', role: 'attacker' },
+      { label: 'GitHub Actions Runner', sublabel: 'Linter, PyTest & pySigma', role: 'network' },
+      { label: 'Caldera Emulation Host', sublabel: 'Synthetic Attack Replay', role: 'sensor' },
+      { label: 'Splunk Test Cluster', sublabel: 'Live Telemetry Validation', role: 'target' },
+      { label: 'Production SIEM API', sublabel: 'Automated Rule Deployment', role: 'siem' },
+      { label: 'Detection Engineer', sublabel: 'Coverage Metrics Review', role: 'analyst' },
+    ],
+    environment: [
+      { label: 'CI/CD Pipeline', value: 'GitHub Actions Workflows' },
+      { label: 'Rule Format', value: 'Sigma Generic Signatures v2' },
+      { label: 'Target SIEM', value: 'Splunk Enterprise 9.2 + REST API' },
+      { label: 'Emulation Tool', value: 'MITRE Caldera 4.2' },
+      { label: 'Validation Framework', value: 'Python 3.11 with PyTest' },
+      { label: 'Coverage Model', value: 'MITRE ATT&CK Enterprise Matrix v14' },
+    ],
+    activities: [
+      'Sigma rule syntax validation and field taxonomy mapping',
+      'Automated conversion to Splunk SPL and Elastic EQL',
+      'Synthetic attack execution triggering telemetry pipelines',
+      'False-positive background noise testing in staging sandboxes',
+      'Automated metric dashboard tracking MITRE ATT&CK coverage gains',
+    ],
+    results:
+      'Reduces rule deployment cycle from weeks to minutes while ensuring zero untested signatures reach the production SOC environment.',
+    technologies: ['Splunk', 'Python', 'Git', 'Linux', 'Docker'],
+    image: img1,
+    githubUrl: 'https://github.com/sec-engineer/siem-detection-pipeline',
+    architectureDetails: {
+      summary: 'Detection engineering lifecycle management repository utilizing GitHub Actions and PyTest for automated SPL linting.',
+      nodes: [
+        'GitHub Actions CI/CD Runner',
+        'Splunk Developer REST API',
+        'Sigma Conversion Toolchain',
+        'Caldera Adversary Simulator',
+      ],
+      mitreTactics: ['TA0005 Defense Evasion', 'TA0002 Execution', 'TA0008 Lateral Movement'],
+      keyCapabilities: [
+        'Automated validation of Sigma YAML syntax against MITRE ATT&CK schema v14',
+        'Continuous deployment of savedsearches.conf directly into Splunk cluster',
+        'Simulated attack replay verifying true-positive alerting thresholds',
+        'Automated detection drift reporting on telemetry field schema updates',
+      ],
+      sampleSnippetTitle: 'sigma_rule.yml',
+      sampleSnippet: `title: Suspicious Process Spawning via WMI
+status: experimental
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    ParentImage|endswith: '\\\\WmiPrvSE.exe'
+    Image|endswith:
+      - '\\\\powershell.exe'
+      - '\\\\cmd.exe'
+  condition: selection
+level: high`,
     },
   },
 ];

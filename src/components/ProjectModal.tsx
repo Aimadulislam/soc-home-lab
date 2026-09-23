@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Github,
@@ -8,8 +8,10 @@ import {
   Activity,
   Check,
   Copy,
+  Folder,
 } from 'lucide-react';
 import { Project } from '../types/project';
+import { getTechIcon, getStatusIcon, getDifficultyStyle } from '../utils/techIcons';
 
 interface ProjectModalProps {
   project: Project | null;
@@ -21,7 +23,9 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -29,7 +33,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
 
   if (!project) return null;
 
-  const difficultyDisplay = project.difficulty || project.level || 'ADVANCED';
+  const difficulty = project.difficulty || project.level || 'ADVANCED';
+  const difficultyStyle = getDifficultyStyle(difficulty);
 
   const handleCopy = () => {
     if (project.architectureDetails?.sampleSnippet) {
@@ -60,15 +65,19 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
           <X className="w-5 h-5" />
         </button>
 
-        {/* Modal Header */}
+        {/* Modal Header Badges */}
         <div className="flex flex-wrap items-center gap-2 mb-3">
-          <span className="px-2.5 py-1 rounded-[4px] bg-[#070D1A] border border-[rgba(244,200,74,0.35)] text-[#F4C84A] font-mono text-xs font-bold tracking-[1px] uppercase">
-            {difficultyDisplay}
+          <span
+            className={`px-2.5 py-1 rounded-[4px] bg-[#070D1A] border font-mono text-xs font-bold tracking-[1px] uppercase ${difficultyStyle.text} ${difficultyStyle.border}`}
+          >
+            {difficultyStyle.label}
           </span>
-          <span className="px-3 py-1 rounded-[6px] bg-[rgba(13,25,46,0.7)] border border-[rgba(65,125,170,0.35)] text-[#4FD8FF] font-mono text-xs font-semibold tracking-[1px]">
+          <span className="inline-flex items-center px-3 py-1 rounded-[6px] bg-[rgba(13,25,46,0.7)] border border-[rgba(65,125,170,0.35)] text-[#4FD8FF] font-mono text-xs font-semibold tracking-[1px] uppercase">
+            <Folder className="w-3.5 h-3.5 mr-1.5 text-[#4FD8FF]" />
             {project.category}
           </span>
-          <span className="px-3 py-1 rounded-[6px] bg-[rgba(13,25,46,0.7)] border border-[rgba(65,125,170,0.35)] text-[#4FD8FF] font-mono text-xs font-semibold tracking-[1px]">
+          <span className="inline-flex items-center px-3 py-1 rounded-[6px] bg-[rgba(13,25,46,0.7)] border border-[rgba(65,125,170,0.35)] text-[#4FD8FF] font-mono text-xs font-semibold tracking-[1px] uppercase">
+            {getStatusIcon(project.status)}
             {project.status}
           </span>
         </div>
@@ -83,14 +92,18 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
 
         {/* Technical Stack Tags */}
         <div className="flex flex-wrap gap-2 mb-6">
-          {project.technologies.map((t) => (
-            <span
-              key={t}
-              className="px-2.5 py-1 rounded-[5px] bg-[rgba(30,39,57,0.65)] border border-[rgba(90,110,145,0.22)] font-mono text-xs text-[#B9C3D3]"
-            >
-              {t}
-            </span>
-          ))}
+          {project.technologies.map((t) => {
+            const techName = typeof t === 'string' ? t : t.name;
+            return (
+              <span
+                key={techName}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[5px] bg-[rgba(30,39,57,0.65)] border border-[rgba(90,110,145,0.22)] font-mono text-xs text-[#B9C3D3]"
+              >
+                {getTechIcon(t)}
+                <span>{techName}</span>
+              </span>
+            );
+          })}
         </div>
 
         {/* Architecture Details */}
@@ -118,17 +131,17 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
               </div>
             </div>
 
-            {/* MITRE ATT&CK Mappings */}
+            {/* MITRE ATT&CK Matrix */}
             <div>
               <div className="flex items-center gap-2 text-sm font-mono font-semibold text-[#4FD8FF] uppercase tracking-wider mb-2">
                 <Shield className="w-4 h-4" />
-                <span>MITRE ATT&CK Tactics Validated</span>
+                <span>Simulated Adversary Tactics & Coverage</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {project.architectureDetails.mitreTactics.map((tactic, i) => (
                   <span
                     key={i}
-                    className="px-3 py-1.5 rounded-md bg-[rgba(244,200,74,0.08)] border border-[rgba(244,200,74,0.25)] text-[#F4C84A] font-mono text-xs"
+                    className="px-2.5 py-1 rounded bg-[#070D1A] border border-[rgba(65,125,170,0.25)] text-xs font-mono text-[#7185A7]"
                   >
                     {tactic}
                   </span>
@@ -136,16 +149,16 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
               </div>
             </div>
 
-            {/* Key Deliverables */}
+            {/* Key Capabilities */}
             <div>
               <div className="flex items-center gap-2 text-sm font-mono font-semibold text-[#4FD8FF] uppercase tracking-wider mb-2">
                 <Activity className="w-4 h-4" />
-                <span>Key Engineering Highlights</span>
+                <span>Engineering & Operational Highlights</span>
               </div>
-              <ul className="space-y-2">
+              <ul className="space-y-1.5 text-xs text-[#A0B0CB]">
                 {project.architectureDetails.keyCapabilities.map((cap, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-[#A0B0CB]">
-                    <span className="text-[#4FD8FF] mt-1">▹</span>
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="text-[#4FD8FF] font-mono mt-0.5">▸</span>
                     <span>{cap}</span>
                   </li>
                 ))}
@@ -192,7 +205,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center w-full sm:w-auto px-5 py-2.5 rounded-[6px] bg-transparent border border-[rgba(53,133,174,0.5)] font-mono text-sm font-semibold text-[#55D8FF] hover:border-[#55D8FF] hover:bg-[rgba(85,216,255,0.08)] transition-all"
+              className="inline-flex items-center justify-center w-full sm:w-auto px-5 py-2.5 rounded-[6px] bg-transparent border border-[rgba(53,133,174,0.5)] font-mono text-sm font-semibold text-[#55D8FF] hover:border-[#55D8FF] hover:bg-[rgba(50,190,240,0.06)] transition-all"
             >
               <Github className="w-4 h-4 mr-2" />
               <span>View Repository</span>

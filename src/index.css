@@ -4,13 +4,58 @@
   :root {
     --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+    /* Theme colors - Dark mode default (matching reference) */
+    --bg-page: #070D1A;
+    --bg-card: #091121;
+    --bg-card-subtle: rgba(13, 25, 46, 0.7);
+    --bg-inner: #070D1A;
+    --text-primary: #E8EEF8;
+    --text-muted: #7185A7;
+    --border-color: rgba(65, 125, 170, 0.25);
+    --border-subtle: rgba(65, 125, 170, 0.18);
+    --border-hover: rgba(85, 216, 255, 0.45);
+    --accent: #4FD8FF;
+    --accent-btn: #55D8FF;
+    --badge-bg: rgba(30, 39, 57, 0.65);
+    --badge-border: rgba(90, 110, 145, 0.22);
+    --badge-text: #B9C3D3;
+    --badge-text-hover: #D5DEEB;
+    --grid-line: rgba(65, 125, 170, 0.06);
+    --overlay-bg: rgba(4, 8, 18, 0.75);
+    --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.5);
+    --shadow-card-hover: 0 16px 36px rgba(4, 9, 20, 0.7);
+  }
+
+  html.light, body.light {
+    /* Theme colors - Light cybersecurity mode */
+    --bg-page: #F4F7FA;
+    --bg-card: #FFFFFF;
+    --bg-card-subtle: #F1F5F9;
+    --bg-inner: #F8FAFC;
+    --text-primary: #172033;
+    --text-muted: #5D6B82;
+    --border-color: #D9E1EA;
+    --border-subtle: #E2E8F0;
+    --border-hover: rgba(8, 126, 164, 0.45);
+    --accent: #087EA4;
+    --accent-btn: #087EA4;
+    --badge-bg: #F1F5F9;
+    --badge-border: #D9E1EA;
+    --badge-text: #334155;
+    --badge-text-hover: #0F172A;
+    --grid-line: rgba(8, 126, 164, 0.04);
+    --overlay-bg: rgba(15, 23, 42, 0.5);
+    --shadow-card: 0 4px 16px rgba(15, 23, 42, 0.06);
+    --shadow-card-hover: 0 10px 24px rgba(15, 23, 42, 0.12);
   }
 
   body {
     font-family: var(--font-sans);
-    background-color: #070D1A;
-    color: #E8EEF8;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
     overflow-x: hidden;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   code, kbd, samp, pre, .font-mono {
@@ -18,27 +63,37 @@
   }
 }
 
-/* Subtle Technical Grid (40-60px spacing, opacity ~0.06) */
+/* Subtle Technical Grid (40-60px spacing) */
 .cyber-grid-bg {
-  background-color: #070D1A;
+  background-color: var(--bg-page);
   background-image: 
-    linear-gradient(to right, rgba(65, 125, 170, 0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(65, 125, 170, 0.06) 1px, transparent 1px);
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 
-/* Custom smooth dark scrollbar */
+/* Custom smooth scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #070D1A;
+  background: var(--bg-page);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(65, 125, 170, 0.35);
+  background: var(--border-color);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(85, 216, 255, 0.5);
+  background: var(--accent);
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

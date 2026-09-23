@@ -1,177 +1,401 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Shield,
   Activity,
   Server,
-  Terminal,
-  Filter,
-  CheckCircle2,
-  FolderGit2,
-  Lock,
-  Layers,
   Search,
-  SlidersHorizontal,
   LayoutGrid,
   Focus,
-  ExternalLink,
 } from 'lucide-react';
 import { projects } from './data/projects';
-import { Project, ProjectLevel } from './types/project';
+import { Project } from './types/project';
 import { ProjectCard } from './components/ProjectCard';
-import { ProjectModal } from './components/ProjectModal';
+import { ProjectDetailDrawer } from './components/ProjectDetailDrawer';
 import { Navbar } from './components/Navbar';
+import { useTheme } from './hooks/useTheme';
+import { ThemeToggle } from './components/ThemeToggle';
 
 export default function App() {
-  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
-  const [selectedLevel, setSelectedLevel] = useState<string>('ALL');
+  const { theme, toggleTheme } = useTheme();
+  const [selectedFilter, setSelectedFilter] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'spotlight'>('grid');
+  const triggerRef = useRef<HTMLElement | null>(null);
 
-  // Categories list
-  const categories = ['ALL', 'HOME LAB', 'SOC LAB', 'NETWORK SECURITY', 'LINUX SECURITY', 'THREAT HUNTING'];
+  // Defined project filters: ALL, SOC, NETWORK SECURITY, DFIR, PENTESTING, LINUX, WEB SECURITY
+  const filters = [
+    'ALL',
+    'SOC',
+    'NETWORK SECURITY',
+    'DFIR',
+    'PENTESTING',
+    'LINUX',
+    'WEB SECURITY',
+  ];
 
-  // Filtered projects
+  // URL / Deep link support
+  useEffect(() => {
+    // Check initial query parameter or hash
+    const params = new URLSearchParams(window.location.search);
+    const initialId = params.get('project') || params.get('id');
+
+    if (initialId) {
+      const match = projects.find((p) => p.id.toLowerCase() === initialId.toLowerCase());
+      if (match) {
+        setActiveProject(match);
+      }
+    } else if (window.location.hash) {
+      const hashId = window.location.hash.replace('#project=', '').replace('#', '');
+      const match = projects.find((p) => p.id.toLowerCase() === hashId.toLowerCase());
+      if (match) {
+        setActiveProject(match);
+      }
+    }
+
+    // Handle browser Back/Forward navigation
+    const handlePopState = () => {
+      const currentParams = new URLSearchParams(window.location.search);
+      const currentId = currentParams.get('project') || currentParams.get('id');
+      if (currentId) {
+        const found = projects.find((p) => p.id.toLowerCase() === currentId.toLowerCase());
+        setActiveProject(found || null);
+      } else {
+        setActiveProject(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Sync active project with URL and dynamic SEO metadata
+  useEffect(() => {
+    if (activeProject) {
+      document.title = `${activeProject.title} | Cybersecurity Project`;
+
+      // Update URL query string
+      const url = new URL(window.location.href);
+      if (url.searchParams.get('project') !== activeProject.id) {
+        url.searchParams.set('project', activeProject.id);
+        window.history.pushState({ projectId: activeProject.id }, '', url.toString());
+      }
+
+      // JSON-LD structured data for SEO
+      let scriptTag = document.getElementById('project-json-ld');
+      if (!scriptTag) {
+        scriptTag = document.createElement('script');
+        scriptTag.id = 'project-json-ld';
+        scriptTag.setAttribute('type', 'application/ld+json');
+        document.head.appendChild(scriptTag);
+      }
+      scriptTag.textContent = JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        headline: activeProject.title,
+        description: activeProject.overview || activeProject.description,
+        genre: activeProject.category,
+        keywords: activeProject.technologies
+          .map((t) => (typeof t === 'string' ? t : t.name))
+          .join(', '),
+        author: {
+          '@type': 'Person',
+          name: 'Security Engineer',
+          jobTitle: 'SOC Detection Engineer',
+        },
+      });
+    } else {
+      document.title = 'Cybersecurity Portfolio Projects';
+
+      // Remove query param if present
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('project') || url.searchParams.has('id')) {
+        url.searchParams.delete('project');
+        url.searchParams.delete('id');
+        window.history.replaceState({}, '', url.toString());
+      }
+
+      const scriptTag = document.getElementById('project-json-ld');
+      if (scriptTag) {
+        scriptTag.remove();
+      }
+    }
+  }, [activeProject]);
+
+  // Robust project filter and search engine
   const filteredProjects = useMemo(() => {
     return projects.filter((p) => {
-      const matchCategory = selectedCategory === 'ALL' || p.category.toUpperCase() === selectedCategory;
-      const matchLevel = selectedLevel === 'ALL' || p.level === selectedLevel;
-      const matchSearch =
-        searchQuery === '' ||
-        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.technologies.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
-      return matchCategory && matchLevel && matchSearch;
+      // Filter matching
+      let matchFilter = false;
+      if (selectedFilter === 'ALL') {
+        matchFilter = true;
+      } else {
+        const cat = p.category.toUpperCase();
+        const techNames = p.technologies.map((t) =>
+          (typeof t === 'string' ? t : t.name).toUpperCase()
+        );
+
+        if (selectedFilter === 'SOC') {
+          matchFilter =
+            cat.includes('SOC') ||
+            cat.includes('HOME LAB') ||
+            cat.includes('THREAT HUNTING') ||
+            techNames.some(
+              (t) =>
+                t.includes('SPLUNK') ||
+                t.includes('WAZUH') ||
+                t.includes('SNORT') ||
+                t.includes('ELASTIC')
+            );
+        } else if (selectedFilter === 'NETWORK SECURITY') {
+          matchFilter =
+            cat.includes('NETWORK') ||
+            techNames.some(
+              (t) =>
+                t.includes('WIRESHARK') ||
+                t.includes('SURICATA') ||
+                t.includes('ZEEK') ||
+                t.includes('PCAP')
+            );
+        } else if (selectedFilter === 'DFIR') {
+          matchFilter =
+            cat.includes('DFIR') ||
+            cat.includes('FORENSICS') ||
+            techNames.some(
+              (t) =>
+                t.includes('VOLATILITY') ||
+                t.includes('AUTOPSY') ||
+                t.includes('FTK')
+            );
+        } else if (selectedFilter === 'PENTESTING') {
+          matchFilter =
+            cat.includes('PENETRATION') ||
+            cat.includes('PENTEST') ||
+            cat.includes('THREAT') ||
+            techNames.some(
+              (t) =>
+                t.includes('BURP') ||
+                t.includes('KALI') ||
+                t.includes('MIMIKATZ') ||
+                t.includes('BLOODHOUND')
+            );
+        } else if (selectedFilter === 'LINUX') {
+          matchFilter =
+            cat.includes('LINUX') ||
+            techNames.some(
+              (t) =>
+                t.includes('LINUX') ||
+                t.includes('UBUNTU') ||
+                t.includes('BASH') ||
+                t.includes('AUDITD') ||
+                t.includes('UFW')
+            );
+        } else if (selectedFilter === 'WEB SECURITY') {
+          matchFilter =
+            cat.includes('WEB') ||
+            techNames.some(
+              (t) =>
+                t.includes('BURP') ||
+                t.includes('OWASP') ||
+                t.includes('ZAP') ||
+                t.includes('JWT') ||
+                t.includes('APACHE')
+            );
+        } else {
+          matchFilter = cat.includes(selectedFilter);
+        }
+      }
+
+      // Search matching across title, category, technology, description, and overview
+      let matchSearch = true;
+      if (searchQuery.trim() !== '') {
+        const query = searchQuery.toLowerCase().trim();
+        const inTitle = p.title.toLowerCase().includes(query);
+        const inCategory = p.category.toLowerCase().includes(query);
+        const inDesc = p.description.toLowerCase().includes(query);
+        const inOverview = p.overview ? p.overview.toLowerCase().includes(query) : false;
+        const inTechs = p.technologies.some((t) => {
+          const name = typeof t === 'string' ? t : t.name;
+          return name.toLowerCase().includes(query);
+        });
+        matchSearch = inTitle || inCategory || inDesc || inOverview || inTechs;
+      }
+
+      return matchFilter && matchSearch;
     });
-  }, [selectedCategory, selectedLevel, searchQuery]);
+  }, [selectedFilter, searchQuery]);
+
+  const handleOpenDetails = (project: Project) => {
+    setActiveProject(project);
+  };
+
+  const handleCloseDetails = () => {
+    setActiveProject(null);
+  };
 
   return (
-    <div className="min-h-screen cyber-grid-bg text-[#E8EEF8] flex flex-col font-sans">
+    <div className="min-h-screen cyber-grid-bg text-[var(--text-primary)] flex flex-col font-sans transition-colors duration-200">
       {/* 3-Zone Navigation Bar */}
-      <Navbar activeFilter={selectedCategory} onSelectFilter={setSelectedCategory} />
+      <Navbar
+        activeFilter={selectedFilter}
+        onSelectFilter={setSelectedFilter}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
 
       {/* Main Content Area */}
       <main className="flex-1 w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-10 sm:py-16">
         {/* Section Heading & Subtitle */}
-        <section id="projects" className="text-center sm:text-left mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-[5px] bg-[#0c182e]/80 border border-[rgba(65,125,170,0.3)] text-[#4FD8FF] font-mono text-xs font-semibold tracking-wider uppercase mb-3">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#4FD8FF]" />
+        <section id="projects" className="text-center sm:text-left mb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-[5px] bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--accent)] font-mono text-xs font-semibold tracking-wider uppercase mb-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
             <span>Defensive Operations & Detection Engineering</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#E8EEF8] mb-3">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[var(--text-primary)] mb-3">
             Security Projects
           </h1>
 
-          <p className="text-base sm:text-lg text-[#7185A7] max-w-3xl leading-relaxed">
+          <p className="text-base sm:text-lg text-[var(--text-muted)] max-w-3xl leading-relaxed">
             Hands-on labs, security research, network analysis, and defensive security projects.
           </p>
         </section>
 
-        {/* Technical Filter & View Controls */}
+        {/* Technical Filter, Compact Search & Theme Switcher Controls */}
         <section
           aria-label="Project filtering and search options"
-          className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 mb-8 p-3 sm:p-4 rounded-[12px] bg-[#091121]/90 border border-[rgba(65,125,170,0.22)] backdrop-blur-md"
+          className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 mb-4 p-3 sm:p-4 rounded-[12px] bg-[var(--bg-card)]/90 border border-[var(--border-color)] backdrop-blur-md shadow-xs"
         >
-          {/* Category Filter Pills (Functional Buttons) */}
+          {/* Category Filter Controls */}
           <div
             role="tablist"
             aria-label="Filter projects by category"
             className="flex items-center gap-1.5 overflow-x-auto pb-2 lg:pb-0 scrollbar-none"
           >
-            {categories.map((cat) => (
+            {filters.map((filter) => (
               <button
-                key={cat}
+                key={filter}
                 role="tab"
-                aria-selected={selectedCategory === cat}
+                aria-selected={selectedFilter === filter}
                 aria-controls="projects-grid"
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-[6px] font-mono text-xs font-semibold tracking-[0.5px] uppercase whitespace-nowrap transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4FD8FF] ${
-                  selectedCategory === cat
-                    ? 'bg-[rgba(13,25,46,0.9)] text-[#4FD8FF] border border-[#4FD8FF]/60'
-                    : 'bg-transparent text-[#8BA0C0] border border-transparent hover:border-[rgba(65,125,170,0.3)] hover:text-[#E8EEF8]'
+                onClick={() => setSelectedFilter(filter)}
+                className={`px-3 py-1.5 rounded-[6px] font-mono text-xs font-semibold tracking-[0.5px] uppercase whitespace-nowrap transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] ${
+                  selectedFilter === filter
+                    ? 'bg-[var(--bg-card-subtle)] text-[var(--accent)] border border-[var(--accent)]/60 shadow-xs'
+                    : 'bg-transparent text-[var(--text-muted)] border border-transparent hover:border-[var(--border-color)] hover:text-[var(--text-primary)]'
                 }`}
               >
-                {cat}
+                [ {filter} ]
               </button>
             ))}
           </div>
 
-          {/* Right controls: Search & View Mode */}
-          <div className="flex items-center gap-3">
-            {/* Search Input */}
-            <div className="relative flex-1 sm:w-64">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#7185A7]" aria-hidden="true" />
+          {/* Right controls: Compact Search, Theme Switcher & View Switcher */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            {/* Search Input: Compact, dark bg, thin border, cyan focus */}
+            <div className="relative w-full sm:w-72">
+              <Search
+                className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
+                aria-hidden="true"
+              />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search tools, tags, logs..."
-                aria-label="Search security projects by title, tool, or description"
-                className="w-full pl-9 pr-8 py-1.5 rounded-[6px] bg-[#070D1A] border border-[rgba(65,125,170,0.3)] text-xs font-mono text-[#E8EEF8] placeholder-[#576A88] focus:outline-none focus:border-[#4FD8FF] focus-visible:ring-2 focus-visible:ring-[#4FD8FF]/50 transition-colors"
+                placeholder="Search security projects..."
+                aria-label="Search security projects by title, category, technology, or description"
+                className="w-full pl-9 pr-8 py-1.5 rounded-[6px] bg-[var(--bg-inner)] border border-[var(--border-color)] text-xs font-mono text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40 transition-colors"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
                   aria-label="Clear search query"
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-mono text-[#7185A7] hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#4FD8FF]"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-mono text-[var(--text-muted)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
                 >
                   ✕
                 </button>
               )}
             </div>
 
-            {/* View Mode Toggle */}
-            <div className="flex items-center p-1 rounded-[6px] bg-[#070D1A] border border-[rgba(65,125,170,0.25)] shrink-0" role="group" aria-label="Layout view switcher">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-[4px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4FD8FF] ${
-                  viewMode === 'grid'
-                    ? 'bg-[#4FD8FF]/20 text-[#4FD8FF]'
-                    : 'text-[#7185A7] hover:text-[#E8EEF8]'
-                }`}
-                title="Responsive Grid (3 columns desktop, 2 columns tablet, 1 column mobile)"
-                aria-label="Responsive Grid View"
-                aria-pressed={viewMode === 'grid'}
+            <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+              {/* Theme Toggle in Project Section: [ Sun ] or [ Moon ] */}
+              <ThemeToggle theme={theme} onToggle={toggleTheme} showLabel={true} />
+
+              {/* Layout View Toggle */}
+              <div
+                className="flex items-center p-1 rounded-[6px] bg-[var(--bg-inner)] border border-[var(--border-color)] shrink-0"
+                role="group"
+                aria-label="Layout view switcher"
               >
-                <LayoutGrid className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('spotlight')}
-                className={`p-1.5 rounded-[4px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4FD8FF] ${
-                  viewMode === 'spotlight'
-                    ? 'bg-[#4FD8FF]/20 text-[#4FD8FF]'
-                    : 'text-[#7185A7] hover:text-[#E8EEF8]'
-                }`}
-                title="Single Card Spotlight View (590px Target Focus)"
-                aria-label="Spotlight View"
-                aria-pressed={viewMode === 'spotlight'}
-              >
-                <Focus className="w-4 h-4" />
-              </button>
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-1.5 rounded-[4px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] ${
+                    viewMode === 'grid'
+                      ? 'bg-[var(--accent)]/20 text-[var(--accent)]'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                  }`}
+                  title="Responsive Grid View (3 columns desktop)"
+                  aria-label="Responsive Grid View"
+                  aria-pressed={viewMode === 'grid'}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('spotlight')}
+                  className={`p-1.5 rounded-[4px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] ${
+                    viewMode === 'spotlight'
+                      ? 'bg-[var(--accent)]/20 text-[var(--accent)]'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                  }`}
+                  title="Single Card Spotlight Specimen View"
+                  aria-label="Spotlight View"
+                  aria-pressed={viewMode === 'spotlight'}
+                >
+                  <Focus className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* View Mode: Spotlight Mode (Displays single card centered with exact 590px dimension reference) */}
+        {/* Small Technical Project Counter (Feels like metadata, JetBrains Mono, small, uppercase) */}
+        <div className="flex items-center justify-between mb-6 px-1">
+          <div className="font-mono text-[12px] uppercase text-[var(--text-muted)] tracking-[1.5px]">
+            <span className="text-[var(--accent)] font-semibold">{filteredProjects.length}</span>{' '}
+            {filteredProjects.length === 1 ? 'SECURITY PROJECT' : 'SECURITY PROJECTS'}
+          </div>
+          {(selectedFilter !== 'ALL' || searchQuery !== '') && (
+            <button
+              onClick={() => {
+                setSelectedFilter('ALL');
+                setSearchQuery('');
+              }}
+              className="text-xs font-mono text-[var(--accent-btn)] hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent-btn)]"
+            >
+              Reset filters
+            </button>
+          )}
+        </div>
+
+        {/* View Mode: Spotlight Mode */}
         {viewMode === 'spotlight' ? (
           <div className="flex flex-col items-center justify-center py-6">
             <div className="text-center mb-6">
-              <span className="text-xs font-mono text-[#4FD8FF] uppercase tracking-wider">
+              <span className="text-xs font-mono text-[var(--accent)] uppercase tracking-wider">
                 Precision Component Specimen · 590px × 505px Target
               </span>
-              <p className="text-sm text-[#7185A7] mt-1">
+              <p className="text-sm text-[var(--text-muted)] mt-1">
                 Visual fidelity verification against the reference layout and typography scale.
               </p>
             </div>
             {/* The First Primary Project Card */}
             <ProjectCard
               project={filteredProjects[0] || projects[0]}
-              onOpenDetails={(p) => setActiveProject(p)}
+              onOpenDetails={handleOpenDetails}
             />
           </div>
         ) : (
-          /* View Mode: Responsive Grid (3 columns desktop, 2 columns tablet, 1 column mobile) */
+          /* View Mode: Responsive Grid */
           <div
             id="projects-grid"
             role="region"
@@ -182,45 +406,45 @@ export default function App() {
               <ProjectCard
                 key={project.id}
                 project={project}
-                onOpenDetails={(p) => setActiveProject(p)}
+                onOpenDetails={handleOpenDetails}
               />
             ))}
           </div>
         )}
 
-        {/* Empty State */}
+        {/* Minimal Empty State */}
         {filteredProjects.length === 0 && (
-          <div className="text-center py-16 px-4 rounded-[18px] bg-[#091121] border border-[rgba(65,125,170,0.25)]">
-            <Shield className="w-12 h-12 mx-auto text-[#7185A7] mb-3 opacity-60" />
-            <h3 className="text-lg font-bold text-[#E8EEF8] mb-1">No security projects found</h3>
-            <p className="text-sm text-[#7185A7] mb-4">
-              Try adjusting your search query or reset your category filter.
+          <div className="text-center py-14 px-6 rounded-[14px] bg-[var(--bg-card)] border border-[var(--border-color)] max-w-md mx-auto my-8">
+            <div className="font-mono text-sm font-bold text-[var(--text-primary)] tracking-widest uppercase mb-1">
+              NO PROJECTS FOUND
+            </div>
+            <p className="text-xs text-[var(--text-muted)] mb-5">
+              Try another search or category.
             </p>
             <button
               onClick={() => {
-                setSelectedCategory('ALL');
-                setSelectedLevel('ALL');
+                setSelectedFilter('ALL');
                 setSearchQuery('');
               }}
-              className="px-4 py-2 rounded-[6px] bg-transparent border border-[#55D8FF] text-[#55D8FF] font-mono text-xs font-semibold hover:bg-[#55D8FF]/10 transition-colors"
+              className="inline-flex items-center px-4 py-2 rounded-[6px] bg-transparent border border-[var(--accent-btn)] text-[var(--accent-btn)] font-mono text-xs font-semibold tracking-wider hover:bg-[var(--accent)]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-btn)]"
             >
-              Reset Filters
+              RESET FILTERS
             </button>
           </div>
         )}
 
         {/* Lab Architecture & Methodology Section */}
-        <section id="architecture" className="mt-20 pt-12 border-t border-[rgba(65,125,170,0.2)]">
+        <section id="architecture" className="mt-20 pt-12 border-t border-[var(--border-subtle)]">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Column 1: Lab Infrastructure Philosophy */}
-            <div className="p-6 rounded-[14px] bg-[#091121] border border-[rgba(65,125,170,0.22)]">
-              <div className="w-9 h-9 rounded-lg bg-[#4FD8FF]/10 border border-[#4FD8FF]/30 flex items-center justify-center text-[#4FD8FF] mb-4">
+            <div className="p-6 rounded-[14px] bg-[var(--bg-card)] border border-[var(--border-color)]">
+              <div className="w-9 h-9 rounded-lg bg-[var(--accent)]/10 border border-[var(--accent)]/30 flex items-center justify-center text-[var(--accent)] mb-4">
                 <Server className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-[#E8EEF8] mb-2 font-sans">
+              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2 font-sans">
                 Air-Gapped Virtualization
               </h3>
-              <p className="text-sm text-[#7185A7] leading-relaxed">
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed">
                 All attack simulations and malware triage are isolated within host-only and internal
                 virtual networks. Promiscuous taps mirror raw packet streams directly to IDS engines
                 without external exposure.
@@ -228,14 +452,14 @@ export default function App() {
             </div>
 
             {/* Column 2: Detection Engineering */}
-            <div className="p-6 rounded-[14px] bg-[#091121] border border-[rgba(65,125,170,0.22)]">
-              <div className="w-9 h-9 rounded-lg bg-[#4FD8FF]/10 border border-[#4FD8FF]/30 flex items-center justify-center text-[#4FD8FF] mb-4">
+            <div className="p-6 rounded-[14px] bg-[var(--bg-card)] border border-[var(--border-color)]">
+              <div className="w-9 h-9 rounded-lg bg-[var(--accent)]/10 border border-[var(--accent)]/30 flex items-center justify-center text-[var(--accent)] mb-4">
                 <Activity className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-[#E8EEF8] mb-2 font-sans">
+              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2 font-sans">
                 Detection As Code (DaC)
               </h3>
-              <p className="text-sm text-[#7185A7] leading-relaxed">
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed">
                 Custom Snort rules, Wazuh decoders, and Splunk SPL queries are version-controlled in
                 Git. Every detection is tested against automated benign background noise to maintain
                 low false-positive ratios.
@@ -243,14 +467,14 @@ export default function App() {
             </div>
 
             {/* Column 3: MITRE ATT&CK Alignment */}
-            <div className="p-6 rounded-[14px] bg-[#091121] border border-[rgba(65,125,170,0.22)]">
-              <div className="w-9 h-9 rounded-lg bg-[#4FD8FF]/10 border border-[#4FD8FF]/30 flex items-center justify-center text-[#4FD8FF] mb-4">
+            <div className="p-6 rounded-[14px] bg-[var(--bg-card)] border border-[var(--border-color)]">
+              <div className="w-9 h-9 rounded-lg bg-[var(--accent)]/10 border border-[var(--accent)]/30 flex items-center justify-center text-[var(--accent)] mb-4">
                 <Shield className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-[#E8EEF8] mb-2 font-sans">
+              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2 font-sans">
                 Adversary Emulation
               </h3>
-              <p className="text-sm text-[#7185A7] leading-relaxed">
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed">
                 Labs map explicitly to MITRE ATT&CK enterprise tactics—including Credential Access,
                 Defense Evasion, Command & Control beaconing, and Lateral Movement through Active Directory.
               </p>
@@ -258,51 +482,49 @@ export default function App() {
           </div>
         </section>
 
-        {/* Contact & Footer Section */}
-        <section id="contact" className="mt-16 p-8 rounded-[18px] bg-[#091121] border border-[rgba(65,125,170,0.25)] text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6">
+        {/* SOC Contact & Verification Callout */}
+        <section
+          id="contact"
+          className="mt-16 p-8 rounded-[18px] bg-[var(--bg-card)] border border-[var(--border-color)] text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6"
+        >
           <div>
-            <h3 className="text-xl font-bold text-[#E8EEF8] mb-1">
-              Interested in collaborating or discussing defensive engineering?
-            </h3>
-            <p className="text-sm text-[#7185A7]">
-              Open for SOC Analyst, Threat Detection Engineer, and Blue Team positions.
+            <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] mb-1">
+              Ready for Detection Engineering & SOC Operations
+            </h2>
+            <p className="text-sm text-[var(--text-muted)] max-w-xl">
+              Available for Blue Team, Security Operations Center (SOC) Tier II/III, Threat Hunting, and Security Engineering positions.
             </p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <a
-              href="mailto:contact@cyberengineer.io"
-              className="px-5 py-2.5 rounded-[6px] bg-[#4FD8FF]/15 border border-[#4FD8FF]/40 text-[#4FD8FF] font-mono text-xs font-semibold tracking-wider hover:bg-[#4FD8FF]/25 hover:border-[#4FD8FF] transition-all"
+              href="mailto:contact@security-engineer.io"
+              className="px-5 py-3 rounded-[6px] bg-[var(--bg-card-subtle)] border border-[var(--accent-btn)] text-[var(--accent-btn)] font-mono text-sm font-semibold hover:bg-[var(--accent)]/10 hover:text-[var(--accent)] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-btn)]"
             >
-              Get In Touch
-            </a>
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-5 py-2.5 rounded-[6px] bg-transparent border border-[rgba(65,125,170,0.4)] text-[#8BA0C0] font-mono text-xs font-semibold tracking-wider hover:text-white hover:border-[#4FD8FF] transition-all"
-            >
-              GitHub Org
+              Transmit PGP Inquiries
             </a>
           </div>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="w-full border-t border-[rgba(65,125,170,0.15)] py-6 text-center text-xs font-mono text-[#576A88]">
+      <footer className="w-full border-t border-[var(--border-subtle)] py-6 text-center text-xs font-mono text-[var(--text-muted)]">
         <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 flex flex-col sm:flex-row items-center justify-between gap-3">
           <span>&copy; {new Date().getFullYear()} Cybersecurity Portfolio · Blue Team & SOC Architecture</span>
-          <div className="flex items-center gap-4 text-[#7185A7]">
+          <div className="flex items-center gap-4">
             <span>MITRE ATT&CK&reg; Aligned</span>
             <span>·</span>
-            <span>CIS Benchmark L2</span>
-            <span>·</span>
-            <span>IDS / SIEM Pipeline</span>
+            <span>CIS Benchmark Verified</span>
           </div>
         </div>
       </footer>
 
-      {/* Interactive Modal for in-depth lab inspection */}
-      <ProjectModal project={activeProject} onClose={() => setActiveProject(null)} />
+      {/* Deep Investigation Project Detail Drawer */}
+      <ProjectDetailDrawer
+        project={activeProject}
+        isOpen={activeProject !== null}
+        onClose={handleCloseDetails}
+        triggerRef={triggerRef}
+      />
     </div>
   );
 }

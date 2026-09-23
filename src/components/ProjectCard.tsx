@@ -1,19 +1,7 @@
 import React from 'react';
-import {
-  Folder,
-  CheckCircle2,
-  Github,
-  Cpu,
-  Server,
-  Terminal,
-  Database,
-  Network,
-  Shield,
-  FileCode2,
-  Activity,
-  Boxes,
-} from 'lucide-react';
+import { Folder, Github, ExternalLink, ArrowUpRight } from 'lucide-react';
 import { Project } from '../types/project';
+import { getTechIcon, getStatusIcon, getDifficultyStyle } from '../utils/techIcons';
 
 export interface ProjectCardProps {
   project: Project;
@@ -21,67 +9,67 @@ export interface ProjectCardProps {
   className?: string;
 }
 
-// Map technology names to relevant professional technical icons
-const getTechIcon = (tech: string) => {
-  const lower = tech.toLowerCase();
-  if (lower.includes('splunk') || lower.includes('elastic') || lower.includes('zeek')) {
-    return <Activity className="w-[14px] h-[14px] text-[#4FD8FF]/90 shrink-0" aria-hidden="true" />;
-  }
-  if (lower.includes('snort') || lower.includes('suricata') || lower.includes('ufw') || lower.includes('shield')) {
-    return <Shield className="w-[14px] h-[14px] text-[#4FD8FF]/90 shrink-0" aria-hidden="true" />;
-  }
-  if (lower.includes('virtualbox') || lower.includes('docker') || lower.includes('vm')) {
-    return <Boxes className="w-[14px] h-[14px] text-[#4FD8FF]/90 shrink-0" aria-hidden="true" />;
-  }
-  if (lower.includes('linux') || lower.includes('kali') || lower.includes('bash') || lower.includes('terminal')) {
-    return <Terminal className="w-[14px] h-[14px] text-[#4FD8FF]/90 shrink-0" aria-hidden="true" />;
-  }
-  if (lower.includes('server') || lower.includes('wazuh') || lower.includes('sysmon') || lower.includes('windows')) {
-    return <Server className="w-[14px] h-[14px] text-[#4FD8FF]/90 shrink-0" aria-hidden="true" />;
-  }
-  if (lower.includes('wireshark') || lower.includes('network') || lower.includes('tcp') || lower.includes('pcap')) {
-    return <Network className="w-[14px] h-[14px] text-[#4FD8FF]/90 shrink-0" aria-hidden="true" />;
-  }
-  if (lower.includes('database') || lower.includes('sql') || lower.includes('misp')) {
-    return <Database className="w-[14px] h-[14px] text-[#4FD8FF]/90 shrink-0" aria-hidden="true" />;
-  }
-  if (lower.includes('audit') || lower.includes('code') || lower.includes('python')) {
-    return <FileCode2 className="w-[14px] h-[14px] text-[#4FD8FF]/90 shrink-0" aria-hidden="true" />;
-  }
-  return <Cpu className="w-[14px] h-[14px] text-[#4FD8FF]/90 shrink-0" aria-hidden="true" />;
-};
-
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onOpenDetails, className = '' }) => {
-  const difficultyDisplay = project.difficulty || project.level || 'ADVANCED';
+  const difficulty = project.difficulty || project.level || 'ADVANCED';
+  const difficultyStyle = getDifficultyStyle(difficulty);
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Only open details if user didn't click an anchor tag or interactive button
+    const target = e.target as HTMLElement;
+    if (target.closest('a') || target.closest('button')) {
+      return;
+    }
+    if (onOpenDetails) {
+      onOpenDetails(project);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const target = e.target as HTMLElement;
+      if (!target.closest('a') && !target.closest('button')) {
+        e.preventDefault();
+        onOpenDetails?.(project);
+      }
+    }
+  };
 
   return (
     <article
       tabIndex={0}
-      className={`group relative flex flex-col sm:flex-row w-full max-w-[590px] sm:h-[505px] p-[20px] rounded-[18px] bg-[#091121] border border-[rgba(65,125,170,0.25)] shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all duration-250 ease-out hover:-translate-y-[2px] hover:border-[rgba(85,216,255,0.45)] hover:shadow-[0_16px_36px_rgba(4,9,20,0.7)] focus-within:border-[rgba(85,216,255,0.45)] focus-within:ring-1 focus-within:ring-[rgba(85,216,255,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#55D8FF]/70 gap-[20px] text-left ${className}`}
-      aria-label={`Project: ${project.title}`}
+      onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
+      className={`group relative flex flex-col sm:flex-row w-full max-w-[590px] sm:h-[505px] p-[20px] rounded-[18px] bg-[var(--bg-card)] border border-[var(--border-color)] shadow-[var(--shadow-card)] transition-all duration-200 ease-out hover:-translate-y-[2px] hover:border-[var(--border-hover)] hover:shadow-[var(--shadow-card-hover)] focus-within:border-[var(--border-hover)] focus-within:ring-1 focus-within:ring-[var(--accent)]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/70 gap-[20px] text-left cursor-pointer ${className}`}
+      aria-label={`Project: ${project.title}. Press Enter to inspect investigation details.`}
     >
       {/* LEFT: Project Image / Thumbnail (Width: 120px, Height: 270px on desktop) */}
-      <div className="relative w-full sm:w-[120px] h-[180px] sm:h-[270px] shrink-0 self-start rounded-[12px] overflow-hidden bg-[#070D1A] border border-[rgba(65,125,170,0.2)]">
-        {/* Background Image */}
+      <div
+        className="relative w-full sm:w-[120px] h-[180px] sm:h-[270px] shrink-0 self-start rounded-[12px] overflow-hidden bg-[var(--bg-inner)] border border-[var(--border-subtle)]"
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpenDetails?.(project);
+        }}
+      >
+        {/* Background Image with subtle zoom and brightness transition on hover */}
         <img
           src={project.image}
-          alt={`Infrastructure setup for ${project.title}`}
+          alt={`Infrastructure view for ${project.title}`}
           loading="lazy"
           referrerPolicy="no-referrer"
-          className="w-full h-full object-cover object-center filter brightness-[0.82] contrast-[1.06]"
+          className="w-full h-full object-cover object-center filter brightness-[0.85] contrast-[1.05] transition-all duration-300 ease-out group-hover:scale-[1.03] group-hover:brightness-[0.95]"
         />
 
-        {/* Dark subtle transparent overlay */}
+        {/* Dark subtle overlay - persists through hover */}
         <div className="absolute inset-0 bg-[#070D1A]/35 pointer-events-none" />
 
-        {/* LEVEL / DIFFICULTY BADGE: Top-left corner over the image */}
+        {/* DYNAMIC DIFFICULTY BADGE: Top-left corner over the image */}
         <div className="absolute top-[10px] left-[10px] z-10">
           <span
-            className="inline-flex items-center px-[8px] py-[2px] rounded-[4px] bg-[#070D1A] border border-[rgba(244,200,74,0.3)] text-[#F4C84A] font-mono text-[12px] font-bold tracking-[1px] uppercase shadow-xs"
-            title={`Difficulty: ${difficultyDisplay}`}
-            aria-label={`Difficulty: ${difficultyDisplay}`}
+            className={`inline-flex items-center px-[8px] py-[2px] rounded-[4px] bg-[#070D1A] border font-mono text-[12px] font-bold tracking-[1px] uppercase shadow-xs transition-colors duration-200 ${difficultyStyle.text} ${difficultyStyle.border}`}
+            title={`Difficulty Level: ${difficultyStyle.label}`}
+            aria-label={`Difficulty level: ${difficultyStyle.label}`}
           >
-            {difficultyDisplay}
+            {difficultyStyle.label}
           </span>
         </div>
       </div>
@@ -93,75 +81,89 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onOpenDetails
           {/* TOP STATUS BADGES */}
           <div className="flex items-center gap-[10px] mb-[14px]">
             {/* Category Badge */}
-            <div className="inline-flex items-center h-[38px] px-[14px] py-[10px] rounded-[6px] bg-[rgba(13,25,46,0.7)] border border-[rgba(65,125,170,0.35)] text-[#4FD8FF] font-mono text-[12px] font-semibold tracking-[1px] uppercase">
-              <Folder className="w-[14px] h-[14px] mr-[8px] text-[#4FD8FF] shrink-0" aria-hidden="true" />
+            <div className="inline-flex items-center h-[38px] px-[14px] py-[10px] rounded-[6px] bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--accent)] font-mono text-[12px] font-semibold tracking-[1px] uppercase transition-colors group-hover:border-[var(--border-hover)]">
+              <Folder className="w-[14px] h-[14px] mr-[8px] text-[var(--accent)] shrink-0" aria-hidden="true" />
               <span>{project.category}</span>
             </div>
 
             {/* Status Badge */}
-            <div className="inline-flex items-center h-[38px] px-[14px] py-[10px] rounded-[6px] bg-[rgba(13,25,46,0.7)] border border-[rgba(65,125,170,0.35)] text-[#4FD8FF] font-mono text-[12px] font-semibold tracking-[1px] uppercase">
-              <CheckCircle2 className="w-[14px] h-[14px] mr-[8px] text-[#4FD8FF] shrink-0" aria-hidden="true" />
+            <div className="inline-flex items-center h-[38px] px-[14px] py-[10px] rounded-[6px] bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-[var(--accent)] font-mono text-[12px] font-semibold tracking-[1px] uppercase transition-colors group-hover:border-[var(--border-hover)]">
+              {getStatusIcon(project.status)}
               <span>{project.status}</span>
             </div>
           </div>
 
           {/* PROJECT TITLE */}
           <h3
-            onClick={() => onOpenDetails?.(project)}
-            onKeyDown={(e) => {
-              if (onOpenDetails && (e.key === 'Enter' || e.key === ' ')) {
-                e.preventDefault();
-                onOpenDetails(project);
-              }
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenDetails?.(project);
             }}
-            tabIndex={onOpenDetails ? 0 : undefined}
-            role={onOpenDetails ? 'button' : undefined}
-            aria-label={onOpenDetails ? `Open architectural details for ${project.title}` : undefined}
-            className={`font-sans text-[24px] font-bold leading-[1.35] text-[#E8EEF8] mb-[12px] ${
-              onOpenDetails ? 'cursor-pointer hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#55D8FF] rounded-[2px]' : ''
-            }`}
+            className="font-sans text-[24px] font-bold leading-[1.35] text-[var(--text-primary)] group-hover:text-[var(--accent)] mb-[12px] transition-colors duration-200 flex items-baseline justify-between gap-2"
           >
-            {project.title}
+            <span>{project.title}</span>
+            <ArrowUpRight className="w-5 h-5 text-[var(--text-muted)] group-hover:text-[var(--accent)] transition-colors shrink-0 opacity-0 group-hover:opacity-100 hidden sm:inline-block" />
           </h3>
 
           {/* DESCRIPTION */}
-          <p className="font-sans text-[17px] sm:text-[18px] leading-[1.75] text-[#7185A7] mb-[16px]">
+          <p className="font-sans text-[17px] sm:text-[18px] leading-[1.75] text-[var(--text-muted)] mb-[16px] line-clamp-3 sm:line-clamp-none">
             {project.description}
           </p>
 
           {/* TECHNOLOGY TAGS */}
           <div className="flex flex-wrap gap-[8px]" aria-label="Technologies used">
-            {project.technologies.map((tech) => (
-              <span
-                key={tech}
-                className="inline-flex items-center gap-[6px] px-[11px] py-[7px] rounded-[5px] bg-[rgba(30,39,57,0.65)] border border-[rgba(90,110,145,0.22)] font-mono text-[14px] font-semibold text-[#B9C3D3] transition-colors hover:border-[rgba(120,150,190,0.45)] hover:text-[#E8EEF8]"
-              >
-                {getTechIcon(tech)}
-                <span>{tech}</span>
-              </span>
-            ))}
+            {project.technologies.map((tech) => {
+              const techName = typeof tech === 'string' ? tech : tech.name;
+              return (
+                <span
+                  key={techName}
+                  className="inline-flex items-center gap-[6px] px-[11px] py-[7px] rounded-[5px] bg-[var(--badge-bg)] border border-[var(--badge-border)] font-mono text-[14px] font-semibold text-[var(--badge-text)] transition-colors duration-200 group-hover:border-[var(--border-hover)] group-hover:text-[var(--badge-text-hover)]"
+                >
+                  {getTechIcon(tech)}
+                  <span>{techName}</span>
+                </span>
+              );
+            })}
           </div>
         </div>
 
-        {/* BOTTOM SECTION: Divider & Code Button */}
+        {/* BOTTOM SECTION: Divider & Action Buttons */}
         <div className="mt-auto">
           {/* THIN HORIZONTAL DIVIDER */}
           <div
-            className="mt-[26px] mb-[16px] border-t border-[rgba(100,120,150,0.22)] w-full"
+            className="mt-[24px] mb-[16px] border-t border-[var(--border-subtle)] w-full"
             aria-hidden="true"
           />
 
-          {/* CODE BUTTON */}
-          <a
-            href={project.githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center w-full h-[54px] rounded-[6px] bg-transparent border border-[rgba(53,133,174,0.5)] font-mono text-[16px] font-semibold tracking-[1px] text-[#55D8FF] transition-all duration-200 hover:border-[#55D8FF] hover:text-[#7DE2FF] hover:bg-[rgba(85,216,255,0.06)] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#55D8FF] focus-visible:ring-offset-2 focus-visible:ring-offset-[#091121]"
-            aria-label={`View code on GitHub for ${project.title}`}
-          >
-            <Github className="w-[18px] h-[18px] mr-[10px] text-[#55D8FF] shrink-0" aria-hidden="true" />
-            <span>Code</span>
-          </a>
+          {/* ACTION BUTTONS */}
+          <div className="grid grid-cols-2 gap-3 w-full">
+            {/* Code / GitHub Button */}
+            <a
+              href={project.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center justify-center h-[54px] rounded-[6px] bg-transparent border border-[var(--accent-btn)]/60 font-mono text-[15px] font-semibold tracking-[0.5px] text-[var(--accent-btn)] transition-all duration-200 hover:border-[var(--accent-btn)] hover:text-[var(--accent-btn)] hover:bg-[var(--accent)]/10 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-btn)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-card)]"
+              aria-label={`View code on GitHub for ${project.title}`}
+            >
+              <Github className="w-[18px] h-[18px] mr-[8px] text-[var(--accent-btn)] shrink-0" aria-hidden="true" />
+              <span>Code</span>
+            </a>
+
+            {/* View Details Button (opens the investigation report drawer) */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenDetails?.(project);
+              }}
+              className="inline-flex items-center justify-center h-[54px] rounded-[6px] bg-[var(--bg-card-subtle)] border border-[var(--border-color)] font-mono text-[15px] font-semibold tracking-[0.5px] text-[var(--text-primary)] transition-all duration-200 hover:border-[var(--accent)] hover:text-[var(--accent)] hover:bg-[var(--bg-card-subtle)]/90 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-card)]"
+              aria-label={`View investigation report and architecture for ${project.title}`}
+            >
+              <ExternalLink className="w-[16px] h-[16px] mr-[8px] text-[var(--accent)] shrink-0" aria-hidden="true" />
+              <span>View Details</span>
+            </button>
+          </div>
         </div>
       </div>
     </article>
