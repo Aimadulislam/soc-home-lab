@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #070D1A;
+    color: #E8EEF8;
+    overflow-x: hidden;
+  }
+
+  code, kbd, samp, pre, .font-mono {
+    font-family: var(--font-mono);
+  }
+}
+
+/* Subtle Technical Grid (40-60px spacing, opacity ~0.06) */
+.cyber-grid-bg {
+  background-color: #070D1A;
+  background-image: 
+    linear-gradient(to right, rgba(65, 125, 170, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(65, 125, 170, 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* Custom smooth dark scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #070D1A;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(65, 125, 170, 0.35);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(85, 216, 255, 0.5);
+}
