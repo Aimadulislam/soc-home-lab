@@ -19,7 +19,6 @@ export const ProjectArchitectureFlow: React.FC<ProjectArchitectureFlowProps> = (
   nodes,
   className = '',
 }) => {
-  // Fallback nodes if project does not specify custom flow
   const defaultNodes: ArchitectureNode[] = [
     { label: 'Kali Linux', sublabel: 'Adversary (192.168.56.20)', role: 'attacker' },
     { label: 'Virtual Network', sublabel: 'Isolated Host-Only TAP', role: 'network' },
@@ -34,36 +33,25 @@ export const ProjectArchitectureFlow: React.FC<ProjectArchitectureFlowProps> = (
   const getNodeIcon = (role?: string) => {
     switch (role) {
       case 'attacker':
-        return <Skull className="w-3.5 h-3.5 text-[#F87171]" />;
+        return <Skull className="w-3.5 h-3.5 text-[#F87171]" aria-hidden="true" />;
       case 'network':
-        return <Network className="w-3.5 h-3.5 text-[#60A5FA]" />;
+        return <Network className="w-3.5 h-3.5 text-[#60A5FA]" aria-hidden="true" />;
       case 'sensor':
-        return <Shield className="w-3.5 h-3.5 text-[#4FD8FF]" />;
+        return <Shield className="w-3.5 h-3.5 text-[var(--accent)]" aria-hidden="true" />;
       case 'target':
-        return <Server className="w-3.5 h-3.5 text-[#A78BFA]" />;
+        return <Server className="w-3.5 h-3.5 text-[#A78BFA]" aria-hidden="true" />;
       case 'siem':
-        return <Database className="w-3.5 h-3.5 text-[#38BDF8]" />;
+        return <Database className="w-3.5 h-3.5 text-[var(--accent)]" aria-hidden="true" />;
       case 'analyst':
-        return <UserCheck className="w-3.5 h-3.5 text-[#34D399]" />;
+        return <UserCheck className="w-3.5 h-3.5 text-[#34D399]" aria-hidden="true" />;
       default:
-        return <Server className="w-3.5 h-3.5 text-[#4FD8FF]" />;
-    }
-  };
-
-  const getNodeBorder = (role?: string) => {
-    switch (role) {
-      case 'attacker':
-        return 'border-[#F87171]/40 hover:border-[#F87171]/80';
-      case 'analyst':
-        return 'border-[#34D399]/40 hover:border-[#34D399]/80';
-      default:
-        return 'border-[var(--border-subtle)] hover:border-[var(--border-hover)]';
+        return <Server className="w-3.5 h-3.5 text-[var(--accent)]" aria-hidden="true" />;
     }
   };
 
   return (
     <div
-      className={`relative w-full flex flex-col items-center py-2 ${className}`}
+      className={`relative w-full flex flex-col items-center py-1 ${className}`}
       aria-label="Lab Architecture Topology Diagram"
     >
       <div className="w-full flex flex-col items-center">
@@ -72,14 +60,10 @@ export const ProjectArchitectureFlow: React.FC<ProjectArchitectureFlowProps> = (
 
           return (
             <React.Fragment key={index}>
-              {/* Architecture Node */}
-              <div
-                className={`w-full flex items-center justify-between p-3 rounded-[8px] bg-[var(--bg-inner)] border ${getNodeBorder(
-                  node.role
-                )} transition-all duration-150 shadow-xs`}
-              >
+              {/* Technical Node */}
+              <div className="w-full flex items-center justify-between px-3 py-2.5 rounded-[6px] bg-[var(--bg-inner)] border border-[var(--border-subtle)] hover:border-[var(--border-hover)] transition-colors">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-6 h-6 rounded-[4px] bg-[var(--bg-card)] border border-[var(--border-subtle)] flex items-center justify-center shrink-0">
+                  <div className="w-5 h-5 rounded-[4px] bg-[var(--bg-card)] border border-[var(--border-subtle)] flex items-center justify-center shrink-0">
                     {getNodeIcon(node.role)}
                   </div>
                   <div className="min-w-0">
@@ -94,19 +78,19 @@ export const ProjectArchitectureFlow: React.FC<ProjectArchitectureFlowProps> = (
                   </div>
                 </div>
 
-                <span className="font-mono text-[10px] tracking-wider uppercase px-2 py-0.5 rounded bg-[var(--bg-card)] text-[var(--text-muted)] border border-[var(--border-subtle)] shrink-0 ml-2">
+                <span className="font-mono text-[10px] tracking-wider uppercase px-1.5 py-0.5 rounded bg-[var(--bg-card)] text-[var(--text-muted)] border border-[var(--border-subtle)] shrink-0 ml-2">
                   {node.role || 'node'}
                 </span>
               </div>
 
-              {/* Connecting Pipe & Arrow */}
+              {/* Connecting Vector Conduit */}
               {!isLast && (
                 <div
-                  className="flex flex-col items-center my-1 select-none pointer-events-none"
+                  className="flex flex-col items-center my-0.5 select-none pointer-events-none"
                   aria-hidden="true"
                 >
-                  <div className="w-[1px] h-3 bg-[var(--border-color)]" />
-                  <ChevronDown className="w-3.5 h-3.5 -my-1 text-[var(--accent)] stroke-[2.2]" />
+                  <div className="w-[1px] h-2.5 bg-[var(--border-color)]" />
+                  <ChevronDown className="w-3 h-3 -my-0.5 text-[var(--border-hover)]" />
                 </div>
               )}
             </React.Fragment>

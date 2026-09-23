@@ -1,5 +1,5 @@
 import React from 'react';
-import { Folder, Github, ExternalLink, ArrowUpRight } from 'lucide-react';
+import { Folder, Github, ExternalLink } from 'lucide-react';
 import { Project } from '../types/project';
 import { getTechIcon, getStatusIcon, getDifficultyStyle } from '../utils/techIcons';
 
@@ -39,10 +39,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onOpenDetails
       tabIndex={0}
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
-      className={`group relative flex flex-col sm:flex-row w-full max-w-[590px] sm:h-[505px] p-[20px] rounded-[18px] bg-[var(--bg-card)] border border-[var(--border-color)] shadow-[var(--shadow-card)] transition-all duration-200 ease-out hover:-translate-y-[2px] hover:border-[var(--border-hover)] hover:shadow-[var(--shadow-card-hover)] focus-within:border-[var(--border-hover)] focus-within:ring-1 focus-within:ring-[var(--accent)]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/70 gap-[20px] text-left cursor-pointer ${className}`}
-      aria-label={`Project: ${project.title}. Press Enter to inspect investigation details.`}
+      className={`group relative flex flex-col sm:flex-row w-full max-w-[590px] sm:h-[505px] p-[20px] rounded-[18px] bg-[var(--bg-card)] border border-[var(--border-color)] shadow-[var(--shadow-card)] transition-all duration-200 ease-out hover:-translate-y-[2px] hover:border-[var(--border-hover)] hover:shadow-[var(--shadow-card-hover)] focus-within:border-[var(--border-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/60 gap-[20px] text-left cursor-pointer ${className}`}
+      aria-label={`Project: ${project.title}. Open technical investigation report.`}
     >
-      {/* LEFT: Project Image / Thumbnail (Width: 120px, Height: 270px on desktop) */}
+      {/* LEFT: Project Image Thumbnail (Width: 120px, Height: 270px on desktop) */}
       <div
         className="relative w-full sm:w-[120px] h-[180px] sm:h-[270px] shrink-0 self-start rounded-[12px] overflow-hidden bg-[var(--bg-inner)] border border-[var(--border-subtle)]"
         onClick={(e) => {
@@ -50,22 +50,21 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onOpenDetails
           onOpenDetails?.(project);
         }}
       >
-        {/* Background Image with subtle zoom and brightness transition on hover */}
         <img
           src={project.image}
           alt={`Infrastructure view for ${project.title}`}
           loading="lazy"
           referrerPolicy="no-referrer"
-          className="w-full h-full object-cover object-center filter brightness-[0.85] contrast-[1.05] transition-all duration-300 ease-out group-hover:scale-[1.03] group-hover:brightness-[0.95]"
+          className="w-full h-full object-cover object-center filter brightness-[0.85] contrast-[1.04] transition-all duration-250 ease-out group-hover:scale-[1.02] group-hover:brightness-[0.92]"
         />
 
-        {/* Dark subtle overlay - persists through hover */}
+        {/* Dark subtle overlay */}
         <div className="absolute inset-0 bg-[#070D1A]/35 pointer-events-none" />
 
-        {/* DYNAMIC DIFFICULTY BADGE: Top-left corner over the image */}
-        <div className="absolute top-[10px] left-[10px] z-10">
+        {/* DYNAMIC DIFFICULTY BADGE: Top-left corner inside the image */}
+        <div className="absolute top-[10px] left-[10px] z-10 pointer-events-none">
           <span
-            className={`inline-flex items-center px-[8px] py-[2px] rounded-[4px] bg-[#070D1A] border font-mono text-[12px] font-bold tracking-[1px] uppercase shadow-xs transition-colors duration-200 ${difficultyStyle.text} ${difficultyStyle.border}`}
+            className={`inline-flex items-center px-[8px] py-[2px] rounded-[4px] bg-[#070D1A] border font-mono text-[12px] font-bold tracking-[1px] uppercase shadow-xs ${difficultyStyle.text} ${difficultyStyle.border}`}
             title={`Difficulty Level: ${difficultyStyle.label}`}
             aria-label={`Difficulty level: ${difficultyStyle.label}`}
           >
@@ -99,10 +98,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onOpenDetails
               e.stopPropagation();
               onOpenDetails?.(project);
             }}
-            className="font-sans text-[24px] font-bold leading-[1.35] text-[var(--text-primary)] group-hover:text-[var(--accent)] mb-[12px] transition-colors duration-200 flex items-baseline justify-between gap-2"
+            className="font-sans text-[24px] font-bold leading-[1.35] text-[var(--text-primary)] group-hover:text-[var(--accent)] mb-[12px] transition-colors duration-200"
           >
-            <span>{project.title}</span>
-            <ArrowUpRight className="w-5 h-5 text-[var(--text-muted)] group-hover:text-[var(--accent)] transition-colors shrink-0 opacity-0 group-hover:opacity-100 hidden sm:inline-block" />
+            {project.title}
           </h3>
 
           {/* DESCRIPTION */}
@@ -127,7 +125,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onOpenDetails
           </div>
         </div>
 
-        {/* BOTTOM SECTION: Divider & Action Buttons */}
+        {/* BOTTOM SECTION: Divider & Code Button */}
         <div className="mt-auto">
           {/* THIN HORIZONTAL DIVIDER */}
           <div
@@ -135,35 +133,49 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onOpenDetails
             aria-hidden="true"
           />
 
-          {/* ACTION BUTTONS */}
-          <div className="grid grid-cols-2 gap-3 w-full">
-            {/* Code / GitHub Button */}
+          {/* ACTION BUTTON (Matching Reference Layout) */}
+          {project.projectUrl ? (
+            <div className="grid grid-cols-2 gap-3 w-full">
+              {/* Code Button */}
+              <a
+                href={project.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center justify-center h-[54px] rounded-[6px] bg-transparent border border-[var(--accent-btn)]/50 font-mono text-[15px] font-semibold tracking-[0.5px] text-[var(--accent-btn)] transition-all duration-200 hover:border-[var(--accent-btn)] hover:bg-[var(--accent)]/10 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-btn)]"
+                aria-label={`View code on GitHub for ${project.title}`}
+              >
+                <Github className="w-[18px] h-[18px] mr-[8px] text-[var(--accent-btn)] shrink-0" aria-hidden="true" />
+                <span>Code</span>
+              </a>
+
+              {/* View Project Button */}
+              <a
+                href={project.projectUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center justify-center h-[54px] rounded-[6px] bg-[var(--bg-card-subtle)] border border-[var(--border-color)] font-mono text-[15px] font-semibold tracking-[0.5px] text-[var(--text-primary)] transition-all duration-200 hover:border-[var(--accent)] hover:text-[var(--accent)] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                aria-label={`View project details for ${project.title}`}
+              >
+                <ExternalLink className="w-[16px] h-[16px] mr-[8px] text-[var(--accent)] shrink-0" aria-hidden="true" />
+                <span>View Project</span>
+              </a>
+            </div>
+          ) : (
+            /* Reference single full-width Code Button */
             <a
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center justify-center h-[54px] rounded-[6px] bg-transparent border border-[var(--accent-btn)]/60 font-mono text-[15px] font-semibold tracking-[0.5px] text-[var(--accent-btn)] transition-all duration-200 hover:border-[var(--accent-btn)] hover:text-[var(--accent-btn)] hover:bg-[var(--accent)]/10 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-btn)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-card)]"
+              className="inline-flex items-center justify-center w-full h-[54px] rounded-[6px] bg-transparent border border-[var(--accent-btn)]/50 font-mono text-[15px] font-semibold tracking-[0.5px] text-[var(--accent-btn)] transition-all duration-200 hover:border-[var(--accent-btn)] hover:bg-[var(--accent)]/10 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-btn)]"
               aria-label={`View code on GitHub for ${project.title}`}
             >
               <Github className="w-[18px] h-[18px] mr-[8px] text-[var(--accent-btn)] shrink-0" aria-hidden="true" />
               <span>Code</span>
             </a>
-
-            {/* View Details Button (opens the investigation report drawer) */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpenDetails?.(project);
-              }}
-              className="inline-flex items-center justify-center h-[54px] rounded-[6px] bg-[var(--bg-card-subtle)] border border-[var(--border-color)] font-mono text-[15px] font-semibold tracking-[0.5px] text-[var(--text-primary)] transition-all duration-200 hover:border-[var(--accent)] hover:text-[var(--accent)] hover:bg-[var(--bg-card-subtle)]/90 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-card)]"
-              aria-label={`View investigation report and architecture for ${project.title}`}
-            >
-              <ExternalLink className="w-[16px] h-[16px] mr-[8px] text-[var(--accent)] shrink-0" aria-hidden="true" />
-              <span>View Details</span>
-            </button>
-          </div>
+          )}
         </div>
       </div>
     </article>

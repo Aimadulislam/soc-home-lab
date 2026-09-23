@@ -5,30 +5,30 @@
     --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-    /* Theme colors - Dark mode default (matching reference) */
+    /* Theme colors - Dark mode default (matching authentic reference) */
     --bg-page: #070D1A;
     --bg-card: #091121;
     --bg-card-subtle: rgba(13, 25, 46, 0.7);
     --bg-inner: #070D1A;
     --text-primary: #E8EEF8;
     --text-muted: #7185A7;
-    --border-color: rgba(65, 125, 170, 0.25);
-    --border-subtle: rgba(65, 125, 170, 0.18);
-    --border-hover: rgba(85, 216, 255, 0.45);
+    --border-color: rgba(65, 125, 170, 0.22);
+    --border-subtle: rgba(65, 125, 170, 0.14);
+    --border-hover: rgba(85, 216, 255, 0.38);
     --accent: #4FD8FF;
     --accent-btn: #55D8FF;
     --badge-bg: rgba(30, 39, 57, 0.65);
     --badge-border: rgba(90, 110, 145, 0.22);
     --badge-text: #B9C3D3;
-    --badge-text-hover: #D5DEEB;
-    --grid-line: rgba(65, 125, 170, 0.06);
-    --overlay-bg: rgba(4, 8, 18, 0.75);
-    --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.5);
-    --shadow-card-hover: 0 16px 36px rgba(4, 9, 20, 0.7);
+    --badge-text-hover: #E2E8F0;
+    --grid-line: rgba(65, 125, 170, 0.035);
+    --overlay-bg: rgba(4, 8, 18, 0.82);
+    --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.55);
   }
 
   html.light, body.light {
-    /* Theme colors - Light cybersecurity mode */
+    /* Theme colors - Clean engineering light mode */
     --bg-page: #F4F7FA;
     --bg-card: #FFFFFF;
     --bg-card-subtle: #F1F5F9;
@@ -44,10 +44,10 @@
     --badge-border: #D9E1EA;
     --badge-text: #334155;
     --badge-text-hover: #0F172A;
-    --grid-line: rgba(8, 126, 164, 0.04);
-    --overlay-bg: rgba(15, 23, 42, 0.5);
-    --shadow-card: 0 4px 16px rgba(15, 23, 42, 0.06);
-    --shadow-card-hover: 0 10px 24px rgba(15, 23, 42, 0.12);
+    --grid-line: rgba(8, 126, 164, 0.025);
+    --overlay-bg: rgba(15, 23, 42, 0.55);
+    --shadow-card: 0 2px 8px rgba(15, 23, 42, 0.05);
+    --shadow-card-hover: 0 6px 16px rgba(15, 23, 42, 0.08);
   }
 
   body {
@@ -63,7 +63,7 @@
   }
 }
 
-/* Subtle Technical Grid (40-60px spacing) */
+/* Subtle Technical Grid (Extremely quiet, non-distracting) */
 .cyber-grid-bg {
   background-color: var(--bg-page);
   background-image: 

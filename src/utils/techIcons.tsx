@@ -129,7 +129,7 @@ export const getStatusIcon = (status: ProjectStatus): React.ReactNode => {
     case 'COMPLETED':
       return <CheckCircle2 className="w-[14px] h-[14px] mr-[8px] text-[#4FD8FF] shrink-0" aria-hidden="true" />;
     case 'IN PROGRESS':
-      return <Activity className="w-[14px] h-[14px] mr-[8px] text-[#4FD8FF] shrink-0 animate-pulse" aria-hidden="true" />;
+      return <Activity className="w-[14px] h-[14px] mr-[8px] text-[#4FD8FF] shrink-0" aria-hidden="true" />;
     case 'PLANNED':
       return <Clock className="w-[14px] h-[14px] mr-[8px] text-[#4FD8FF] shrink-0" aria-hidden="true" />;
     case 'ARCHIVED':

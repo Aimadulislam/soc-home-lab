@@ -4,7 +4,6 @@ import {
   Folder,
   Github,
   Share2,
-  Copy,
   Check,
   Server,
   Activity,
@@ -12,6 +11,7 @@ import {
   Terminal,
   ShieldCheck,
   Code2,
+  Copy,
 } from 'lucide-react';
 import { Project } from '../types/project';
 import { getTechIcon, getStatusIcon, getDifficultyStyle } from '../utils/techIcons';
@@ -122,7 +122,7 @@ export const ProjectDetailDrawer: React.FC<ProjectDetailDrawerProps> = ({
         await navigator.share(shareData);
         return;
       } catch {
-        // Fallback to clipboard if user dismissed or share fails
+        // Fallback to clipboard
       }
     }
 
@@ -135,7 +135,6 @@ export const ProjectDetailDrawer: React.FC<ProjectDetailDrawerProps> = ({
     }
   };
 
-  // Copy code snippet handler
   const handleCopySnippet = () => {
     if (project.architectureDetails?.sampleSnippet) {
       navigator.clipboard.writeText(project.architectureDetails.sampleSnippet);
@@ -150,29 +149,29 @@ export const ProjectDetailDrawer: React.FC<ProjectDetailDrawerProps> = ({
       aria-modal="true"
       aria-labelledby="drawer-project-title"
       aria-describedby="drawer-project-desc"
-      className={`fixed inset-0 z-50 transition-opacity duration-300 ${
+      className={`fixed inset-0 z-50 transition-opacity duration-250 ${
         isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       }`}
     >
       {/* Background Overlay (Darkened page behind drawer) */}
       <div
         onClick={onClose}
-        className="absolute inset-0 bg-[#040812]/75 backdrop-blur-[3px] transition-opacity duration-300"
+        className="absolute inset-0 bg-[#040812]/80 transition-opacity duration-250"
         aria-hidden="true"
       />
 
       {/* Slide-over Drawer Container */}
       <aside
         ref={drawerRef}
-        className={`absolute top-0 right-0 h-full w-full sm:w-[540px] md:w-[600px] lg:w-[620px] max-w-full bg-[var(--bg-card)] border-l border-[var(--border-color)] shadow-[0_20px_60px_rgba(0,0,0,0.7)] flex flex-col justify-between transition-transform duration-300 ease-out ${
+        className={`absolute top-0 right-0 h-full w-full sm:w-[540px] md:w-[600px] lg:w-[620px] max-w-full bg-[var(--bg-card)] border-l border-[var(--border-color)] shadow-[0_12px_40px_rgba(0,0,0,0.65)] flex flex-col justify-between transition-transform duration-250 ease-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         {/* DRAWER HEADER (Sticky) */}
-        <div className="sticky top-0 z-20 px-6 py-4 bg-[var(--bg-card)]/95 backdrop-blur-md border-b border-[var(--border-subtle)] flex items-start justify-between gap-4">
+        <div className="sticky top-0 z-20 px-6 py-4 bg-[var(--bg-card)] border-b border-[var(--border-subtle)] flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             {/* Badges row: Category, Status, Difficulty */}
-            <div className="flex flex-wrap items-center gap-2 mb-2">
+            <div className="flex flex-wrap items-center gap-2 mb-2.5">
               <span className="inline-flex items-center px-2.5 py-1 rounded-[5px] bg-[var(--bg-inner)] border border-[var(--border-subtle)] font-mono text-[11px] font-semibold text-[var(--accent)] tracking-[0.5px] uppercase">
                 <Folder className="w-3 h-3 mr-1.5 text-[var(--accent)]" aria-hidden="true" />
                 <span>{project.category}</span>
@@ -200,8 +199,8 @@ export const ProjectDetailDrawer: React.FC<ProjectDetailDrawerProps> = ({
             </h2>
           </div>
 
-          {/* Action buttons: Share & Close */}
-          <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
+          {/* Actions: Share & Close */}
+          <div className="flex items-center gap-1 shrink-0 pt-0.5">
             {/* Share / Copy URL Button */}
             <button
               onClick={handleShare}
@@ -226,7 +225,7 @@ export const ProjectDetailDrawer: React.FC<ProjectDetailDrawerProps> = ({
               ref={closeButtonRef}
               onClick={onClose}
               className="p-2 rounded-[6px] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-inner)] border border-transparent hover:border-[var(--border-subtle)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
-              aria-label="Close project investigation report"
+              aria-label="Close project documentation drawer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -239,25 +238,25 @@ export const ProjectDetailDrawer: React.FC<ProjectDetailDrawerProps> = ({
           className="flex-1 overflow-y-auto px-6 py-6 space-y-6 text-left focus:outline-none"
           tabIndex={-1}
         >
-          {/* Visual Link Copied Toast Banner (if triggered) */}
+          {/* Link Copied Notification */}
           {copiedLink && (
             <div
               role="status"
-              className="flex items-center justify-between px-3 py-2 rounded-[6px] bg-emerald-500/10 border border-emerald-500/40 text-emerald-400 font-mono text-xs font-semibold tracking-wider uppercase animate-fadeIn"
+              className="flex items-center justify-between px-3 py-2 rounded-[6px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-semibold tracking-wider uppercase"
             >
               <div className="flex items-center gap-2">
                 <Check className="w-3.5 h-3.5" />
                 <span>LINK COPIED TO CLIPBOARD</span>
               </div>
-              <span className="text-[10px] text-emerald-400/80">DEEP LINK READY</span>
+              <span className="text-[10px] text-emerald-400/80">DIRECT URL</span>
             </div>
           )}
 
-          {/* SECTION 1: OVERVIEW */}
+          {/* SECTION 1: PROJECT OVERVIEW */}
           <div>
-            <div className="flex items-center gap-2 mb-2 font-mono text-[11px] font-bold text-[var(--accent)] tracking-[1.5px] uppercase">
+            <div className="flex items-center gap-2 mb-2 font-mono text-[11px] font-bold text-[var(--text-muted)] tracking-[1.5px] uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
-              <span>OVERVIEW</span>
+              <span>PROJECT OVERVIEW</span>
             </div>
             <p className="font-sans text-sm sm:text-[15px] leading-relaxed text-[var(--text-muted)]">
               {project.overview || project.description}
@@ -268,19 +267,19 @@ export const ProjectDetailDrawer: React.FC<ProjectDetailDrawerProps> = ({
 
           {/* SECTION 2: OBJECTIVES */}
           <div>
-            <div className="flex items-center gap-2 mb-3 font-mono text-[11px] font-bold text-[var(--accent)] tracking-[1.5px] uppercase">
+            <div className="flex items-center gap-2 mb-3 font-mono text-[11px] font-bold text-[var(--text-muted)] tracking-[1.5px] uppercase">
               <Target className="w-3.5 h-3.5 text-[var(--accent)]" />
               <span>OBJECTIVES</span>
             </div>
             <ul className="space-y-2 text-sm text-[var(--text-muted)]">
               {(
                 project.objectives || [
-                  'Build an isolated SOC environment for security testing',
+                  'Build an isolated virtual SOC environment for defensive testing',
                   'Deploy Snort IDS for promiscuous packet inspection',
                   'Configure Splunk for centralized log ingestion and alerting',
-                  'Generate simulated security anomalies and web attacks',
-                  'Analyze alerts and isolate suspicious malicious payloads',
-                  'Practice tiered incident investigation runbooks',
+                  'Generate security events and simulated web attacks',
+                  'Analyze alerts and isolate suspicious anomalous traffic',
+                  'Practice tiered incident investigation workflows',
                 ]
               ).map((obj, i) => (
                 <li key={i} className="flex items-start gap-2.5">
@@ -296,12 +295,12 @@ export const ProjectDetailDrawer: React.FC<ProjectDetailDrawerProps> = ({
           {/* SECTION 3: LAB ARCHITECTURE */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2 font-mono text-[11px] font-bold text-[var(--accent)] tracking-[1.5px] uppercase">
+              <div className="flex items-center gap-2 font-mono text-[11px] font-bold text-[var(--text-muted)] tracking-[1.5px] uppercase">
                 <Server className="w-3.5 h-3.5 text-[var(--accent)]" />
                 <span>LAB ARCHITECTURE</span>
               </div>
               <span className="font-mono text-[10px] text-[var(--text-muted)] uppercase tracking-wider">
-                Isolated Network Tap
+                Isolated Topology
               </span>
             </div>
 
@@ -313,7 +312,7 @@ export const ProjectDetailDrawer: React.FC<ProjectDetailDrawerProps> = ({
 
           {/* SECTION 4: ENVIRONMENT */}
           <div>
-            <div className="flex items-center gap-2 mb-3 font-mono text-[11px] font-bold text-[var(--accent)] tracking-[1.5px] uppercase">
+            <div className="flex items-center gap-2 mb-3 font-mono text-[11px] font-bold text-[var(--text-muted)] tracking-[1.5px] uppercase">
               <Activity className="w-3.5 h-3.5 text-[var(--accent)]" />
               <span>ENVIRONMENT</span>
             </div>
@@ -348,7 +347,7 @@ export const ProjectDetailDrawer: React.FC<ProjectDetailDrawerProps> = ({
 
           {/* SECTION 5: TECHNOLOGY STACK */}
           <div>
-            <div className="flex items-center gap-2 mb-3 font-mono text-[11px] font-bold text-[var(--accent)] tracking-[1.5px] uppercase">
+            <div className="flex items-center gap-2 mb-3 font-mono text-[11px] font-bold text-[var(--text-muted)] tracking-[1.5px] uppercase">
               <Code2 className="w-3.5 h-3.5 text-[var(--accent)]" />
               <span>TECHNOLOGY STACK</span>
             </div>
@@ -359,7 +358,7 @@ export const ProjectDetailDrawer: React.FC<ProjectDetailDrawerProps> = ({
                 return (
                   <span
                     key={techName}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-[5px] bg-[var(--badge-bg)] border border-[var(--badge-border)] font-mono text-xs font-semibold text-[var(--badge-text)] transition-colors"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-[5px] bg-[var(--badge-bg)] border border-[var(--badge-border)] font-mono text-xs font-semibold text-[var(--badge-text)]"
                   >
                     {getTechIcon(tech)}
                     <span>{techName}</span>
@@ -373,7 +372,7 @@ export const ProjectDetailDrawer: React.FC<ProjectDetailDrawerProps> = ({
 
           {/* SECTION 6: SECURITY ACTIVITIES */}
           <div>
-            <div className="flex items-center gap-2 mb-3 font-mono text-[11px] font-bold text-[var(--accent)] tracking-[1.5px] uppercase">
+            <div className="flex items-center gap-2 mb-3 font-mono text-[11px] font-bold text-[var(--text-muted)] tracking-[1.5px] uppercase">
               <Terminal className="w-3.5 h-3.5 text-[var(--accent)]" />
               <span>SECURITY ACTIVITIES</span>
             </div>
@@ -405,17 +404,17 @@ export const ProjectDetailDrawer: React.FC<ProjectDetailDrawerProps> = ({
 
           {/* SECTION 7: RESULTS */}
           <div>
-            <div className="flex items-center gap-2 mb-2 font-mono text-[11px] font-bold text-[var(--accent)] tracking-[1.5px] uppercase">
+            <div className="flex items-center gap-2 mb-2 font-mono text-[11px] font-bold text-[var(--text-muted)] tracking-[1.5px] uppercase">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               <span>RESULTS</span>
             </div>
-            <p className="font-sans text-sm leading-relaxed text-[var(--text-muted)] bg-[var(--bg-inner)] p-3 rounded-[8px] border border-[var(--border-subtle)]">
+            <p className="font-sans text-sm leading-relaxed text-[var(--text-muted)] bg-[var(--bg-inner)] p-3 rounded-[6px] border border-[var(--border-subtle)]">
               {project.results ||
                 'Successfully created an isolated virtual SOC environment capable of generating, collecting, and analyzing security events through Snort and Splunk.'}
             </p>
           </div>
 
-          {/* OPTIONAL SECTION 8: SAMPLE SNIPPET / DETECTION RULE */}
+          {/* OPTIONAL DETECTION SNIPPET */}
           {project.architectureDetails?.sampleSnippet && (
             <div>
               <div className="border-t border-[var(--border-subtle)] my-6" />
@@ -436,23 +435,27 @@ export const ProjectDetailDrawer: React.FC<ProjectDetailDrawerProps> = ({
                   <span>{copiedSnippet ? 'Copied' : 'Copy'}</span>
                 </button>
               </div>
-              <pre className="p-3 rounded-lg bg-[var(--bg-inner)] border border-[var(--border-subtle)] text-xs font-mono text-[var(--accent)] overflow-x-auto leading-relaxed">
+              <pre className="p-3 rounded-[6px] bg-[var(--bg-inner)] border border-[var(--border-subtle)] text-xs font-mono text-[var(--accent)] overflow-x-auto leading-relaxed">
                 <code>{project.architectureDetails.sampleSnippet}</code>
               </pre>
             </div>
           )}
         </div>
 
-        {/* DRAWER FOOTER: GITHUB ACTION */}
-        <div className="sticky bottom-0 z-20 px-6 py-4 bg-[var(--bg-card)]/95 backdrop-blur-md border-t border-[var(--border-subtle)]">
+        {/* DRAWER FOOTER: SOURCE CODE ACTION */}
+        <div className="sticky bottom-0 z-20 px-6 py-4 bg-[var(--bg-card)] border-t border-[var(--border-subtle)]">
+          <div className="mb-2 flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-[var(--text-muted)]">
+            <span>SOURCE CODE</span>
+            <span className="text-[10px] text-[var(--text-muted)]/80">Verified Repository</span>
+          </div>
           <a
             href={project.githubUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center w-full h-[52px] rounded-[6px] bg-transparent border border-[var(--accent-btn)]/60 font-mono text-[15px] font-semibold tracking-[1px] text-[var(--accent-btn)] transition-all duration-200 hover:border-[var(--accent-btn)] hover:bg-[var(--accent)]/10 hover:text-[var(--accent-btn)] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-btn)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-card)]"
+            className="inline-flex items-center justify-center w-full h-[52px] rounded-[6px] bg-transparent border border-[var(--accent-btn)]/50 font-mono text-[15px] font-semibold tracking-[0.5px] text-[var(--accent-btn)] transition-all duration-200 hover:border-[var(--accent-btn)] hover:bg-[var(--accent)]/10 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-btn)]"
             aria-label={`View source code on GitHub for ${project.title}`}
           >
-            <Github className="w-5 h-5 mr-2.5 text-[var(--accent-btn)] shrink-0" aria-hidden="true" />
+            <Github className="w-[18px] h-[18px] mr-2 text-[var(--accent-btn)] shrink-0" aria-hidden="true" />
             <span>VIEW SOURCE CODE</span>
           </a>
         </div>
